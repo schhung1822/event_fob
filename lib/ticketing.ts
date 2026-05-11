@@ -203,11 +203,22 @@ function buildOrderDetail(records: OrderRecord[]): OrderDetail {
 }
 
 async function sendRegisterWebhook(payload: Record<string, unknown>) {
-  const webhookUrl = process.env.BS_REGISTER_WEBHOOK_URL;
-  if (!webhookUrl) return;
+  const webhookUrl = process.env.BS_REGISTER_WEBHOOK_URL?.trim().replace(
+    /^"(.*)"$/,
+    "$1"
+  );
+  if (!webhookUrl) {
+    console.warn("Register webhook skipped: BS_REGISTER_WEBHOOK_URL is empty");
+    return;
+  }
 
   try {
-    await fetch(webhookUrl, {
+    console.info("Sending register webhook", {
+      webhookUrl,
+      orderId: payload.order_id
+    });
+
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
@@ -215,8 +226,30 @@ async function sendRegisterWebhook(payload: Record<string, unknown>) {
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(5000)
     });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      console.error("Register webhook failed", {
+        webhookUrl,
+        orderId: payload.order_id,
+        status: response.status,
+        body: responseText
+      });
+      return;
+    }
+
+    console.info("Register webhook delivered", {
+      webhookUrl,
+      orderId: payload.order_id,
+      status: response.status,
+      body: responseText
+    });
   } catch (error) {
-    console.error("Register webhook failed", error);
+    console.error("Register webhook request error", {
+      webhookUrl,
+      orderId: payload.order_id,
+      error
+    });
   }
 }
 
@@ -395,7 +428,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     }
 
     saveMockOrder(orderId, mockRecords);
-    void sendRegisterWebhook({
+    await sendRegisterWebhook({
       order_id: orderId,
       create_time: createTime,
       ref,
@@ -524,7 +557,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
 
     await connection.commit();
 
-    void sendRegisterWebhook({
+    await sendRegisterWebhook({
       order_id: orderId,
       create_time: createTime,
       ref,
