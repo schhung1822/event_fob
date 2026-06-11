@@ -10,7 +10,15 @@ import type {
   Ticket,
   ValidatedVoucher
 } from "@/lib/types";
-import { clamp, fetchPublicIp, formatCurrency, getCookie, setCookie } from "@/lib/utils";
+import {
+  clamp,
+  fetchPublicIp,
+  formatCurrency,
+  getCookie,
+  getTikTokTracking,
+  persistTikTokClickId,
+  setCookie
+} from "@/lib/utils";
 
 const initialForm: PurchaseForm = {
   name: "",
@@ -97,6 +105,7 @@ export function TicketPurchasePage() {
     if (ref) {
       setCookie("bs_ref", ref, 30);
     }
+    persistTikTokClickId();
   }, []);
 
   useEffect(() => {
@@ -249,6 +258,7 @@ export function TicketPurchasePage() {
 
     try {
       const clientIp = await fetchPublicIp();
+      const tikTokTracking = getTikTokTracking();
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -265,6 +275,8 @@ export function TicketPurchasePage() {
           utmCampaign: "nextgency",
           fbp: getCookie("_fbp"),
           fbc: getCookie("_fbc") || new URL(window.location.href).searchParams.get("fbclid") || "",
+          ttp: tikTokTracking.ttp,
+          ttclid: tikTokTracking.ttclid,
           clientIp
         })
       });

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { isIP } from "node:net";
-import type { PoolConnection, RowDataPacket } from "mysql2/promise";
+import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
 import { getDatabasePool, hasDatabaseConfig } from "@/lib/db";
 import {
@@ -328,6 +328,88 @@ async function sendRegisterWebhook(payload: Record<string, unknown>) {
   }
 }
 
+async function saveCustomerTracking(
+  connection: PoolConnection,
+  payload: {
+    career: string;
+    clientIp: string;
+    createTime: string;
+    customerId: string;
+    email: string;
+    fbc: string;
+    fbp: string;
+    gender: string;
+    name: string;
+    phone: string;
+    ttclid: string;
+    ttp: string;
+    userAgent: string;
+  }
+) {
+  const [updateResult] = await connection.query<ResultSetHeader>(
+    `
+      UPDATE customer
+      SET
+        name = ?,
+        gender = ?,
+        phone = ?,
+        email = ?,
+        career = ?,
+        user_ip = ?,
+        user_agent = ?,
+        fbp = ?,
+        fbc = ?,
+        create_time = ?,
+        ttclid = COALESCE(NULLIF(?, ''), ttclid),
+        ttp = COALESCE(NULLIF(?, ''), ttp),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE customer_id = ? OR phone = ?
+    `,
+    [
+      payload.name,
+      payload.gender,
+      payload.phone,
+      payload.email,
+      payload.career,
+      payload.clientIp,
+      payload.userAgent,
+      payload.fbp,
+      payload.fbc,
+      payload.createTime,
+      payload.ttclid,
+      payload.ttp,
+      payload.customerId,
+      payload.phone
+    ]
+  );
+
+  if (updateResult.affectedRows > 0) return;
+
+  await connection.query(
+    `
+      INSERT INTO customer (
+        customer_id, name, gender, phone, email, career, user_ip, user_agent,
+        fbp, fbc, create_time, ttclid, ttp
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    [
+      payload.customerId,
+      payload.name,
+      payload.gender,
+      payload.phone,
+      payload.email,
+      payload.career,
+      payload.clientIp,
+      payload.userAgent,
+      payload.fbp,
+      payload.fbc,
+      payload.createTime,
+      payload.ttclid,
+      payload.ttp
+    ]
+  );
+}
+
 export function getOperatingMode() {
   return hasDatabaseConfig() ? "db" : "mock";
 }
@@ -414,6 +496,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   const utmCampaign = trackingValue;
   const fbp = input.fbp?.trim() || "";
   const fbc = input.fbc?.trim() || "";
+  const ttp = input.ttp?.trim() || "";
+  const ttclid = input.ttclid?.trim() || "";
   const userAgent = input.userAgent?.trim() || "";
   const clientIp = input.clientIp?.trim() || "0.0.0.0";
   const createTime = getVietnamNowString();
@@ -525,7 +609,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       user_agent: userAgent,
       ip: clientIp,
       fbp,
-      fbc
+      fbc,
+      ttp,
+      ttclid
     });
 
     return {
@@ -542,6 +628,22 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     const orderId = await generateUniqueCode("OD", connection);
     const webhookTickets: Array<{ ordercode: string; ticket_name: string; price: number }> = [];
     let inserted = 0;
+
+    await saveCustomerTracking(connection, {
+      career,
+      clientIp,
+      createTime,
+      customerId,
+      email,
+      fbc,
+      fbp,
+      gender,
+      name,
+      phone,
+      ttclid,
+      ttp,
+      userAgent
+    });
 
     for (const ticket of input.tickets) {
       const quantity = Math.max(0, Number(ticket.quantity || 0));
@@ -654,7 +756,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       user_agent: userAgent,
       ip: clientIp,
       fbp,
-      fbc
+      fbc,
+      ttp,
+      ttclid
     });
 
     return {

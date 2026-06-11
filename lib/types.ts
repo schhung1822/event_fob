@@ -45,6 +45,8 @@ export type CreateOrderInput = PurchaseForm & {
   utmCampaign?: string;
   fbp?: string;
   fbc?: string;
+  ttp?: string;
+  ttclid?: string;
   userAgent?: string;
   clientIp?: string;
 };

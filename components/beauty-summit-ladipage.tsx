@@ -26,7 +26,15 @@ import {
 import { careerOptions, hopeOptions } from "@/lib/constants";
 import { calculateCartSummary } from "@/lib/pricing";
 import type { CartTicketInput, PurchaseForm, Ticket } from "@/lib/types";
-import { clamp, fetchPublicIp, formatCurrency, getCookie, setCookie } from "@/lib/utils";
+import {
+  clamp,
+  fetchPublicIp,
+  formatCurrency,
+  getCookie,
+  getTikTokTracking,
+  persistTikTokClickId,
+  setCookie
+} from "@/lib/utils";
 
 const eventDate = new Date("2026-06-19T09:00:00+07:00").getTime();
 
@@ -300,6 +308,7 @@ export function BeautySummitLadipage() {
     if (ref) {
       setCookie("bs_ref", ref, 30);
     }
+    persistTikTokClickId();
   }, []);
 
   useEffect(() => {
@@ -393,6 +402,7 @@ export function BeautySummitLadipage() {
 
     try {
       const clientIp = await fetchPublicIp();
+      const tikTokTracking = getTikTokTracking();
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -409,6 +419,8 @@ export function BeautySummitLadipage() {
           utmCampaign: "nextgency",
           fbp: getCookie("_fbp"),
           fbc: getCookie("_fbc") || new URL(window.location.href).searchParams.get("fbclid") || "",
+          ttp: tikTokTracking.ttp,
+          ttclid: tikTokTracking.ttclid,
           clientIp
         })
       });

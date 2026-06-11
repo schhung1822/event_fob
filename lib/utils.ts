@@ -35,6 +35,30 @@ export function setCookie(name: string, value: string, days: number) {
   )};expires=${expires.toUTCString()};path=/`;
 }
 
+export function persistTikTokClickId(days = 30) {
+  if (typeof window === "undefined") return "";
+
+  const ttclid = new URL(window.location.href).searchParams.get("ttclid")?.trim() || "";
+  if (ttclid) {
+    setCookie("bs_ttclid", ttclid, days);
+  }
+
+  return ttclid;
+}
+
+export function getTikTokTracking() {
+  if (typeof window === "undefined") {
+    return { ttp: "", ttclid: "" };
+  }
+
+  const urlTtclid = new URL(window.location.href).searchParams.get("ttclid")?.trim() || "";
+
+  return {
+    ttp: getCookie("_ttp"),
+    ttclid: urlTtclid || getCookie("bs_ttclid")
+  };
+}
+
 export async function fetchPublicIp() {
   if (typeof window === "undefined") return "";
 
