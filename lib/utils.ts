@@ -59,6 +59,41 @@ export function getTikTokTracking() {
   };
 }
 
+
+export function persistMarketingTracking(days = 30) {
+  if (typeof window === "undefined") return;
+
+  const params = new URL(window.location.href).searchParams;
+  const trackedKeys = ["ref", "utm_source", "utm_medium", "utm_campaign"];
+
+  trackedKeys.forEach((key) => {
+    const value = params.get(key)?.trim();
+    if (value) {
+      setCookie(`bs_${key}`, value, days);
+    }
+  });
+}
+
+export function getMarketingTracking() {
+  if (typeof window === "undefined") {
+    return {
+      ref: "",
+      utmSource: "",
+      utmMedium: "",
+      utmCampaign: ""
+    };
+  }
+
+  const params = new URL(window.location.href).searchParams;
+
+  return {
+    ref: params.get("ref")?.trim() || getCookie("bs_ref"),
+    utmSource: params.get("utm_source")?.trim() || getCookie("bs_utm_source"),
+    utmMedium: params.get("utm_medium")?.trim() || getCookie("bs_utm_medium"),
+    utmCampaign:
+      params.get("utm_campaign")?.trim() || getCookie("bs_utm_campaign")
+  };
+}
 export async function fetchPublicIp() {
   if (typeof window === "undefined") return "";
 

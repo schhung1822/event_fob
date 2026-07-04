@@ -23,6 +23,7 @@ import {
   X
 } from "lucide-react";
 
+import { SingleTicketCheckout } from "@/components/single-ticket-checkout";
 import { careerOptions, hopeOptions } from "@/lib/constants";
 import { calculateCartSummary } from "@/lib/pricing";
 import type { CartTicketInput, PurchaseForm, Ticket } from "@/lib/types";
@@ -53,197 +54,13 @@ function getCountdownParts() {
   };
 }
 
-const benefits = [
-  "Kết nối hợp tác với các thương hiệu lớn và cơ hội trở thành nhà phân phối độc quyền",
-  "Cập nhật chiến lược bứt phá tăng trưởng cùng đội ngũ chuyên gia đầu ngành",
-  "Tư vấn cá nhân, gỡ rối trực tiếp và ứng dụng ngay qua Private Coaching 1:1"
-];
-
-const benefitRows = [
-  ["Gặp gỡ giao lưu nam diễn viên Hàn Quốc Kim Bum", true, true, true, true],
-  ["Tham quan toàn bộ khu booth, trải nghiệm sản phẩm", true, true, true, true],
-  ["Cơ hội nhận quà tặng, voucher lên tới 30% từ hơn 200 brand chính hãng", true, true, true, true],
-  ["Tham gia các hoạt động sân khấu theo lịch BTC", true, true, true, true],
-  ["Voucher giảm 35% khi mua bộ cẩm nang kinh doanh ngành làm đẹp", true, true, false, false],
-  ["Bộ sách 6 CẨM NANG KINH DOANH THỰC CHIẾN CHO NGÀNH LÀM ĐẸP trị giá 1.200.000 VNĐ", false, false, true, true],
-  ["Tham dự đồng thời hội thảo Da liễu và hội thảo Marketing", false, true, true, true],
-  ["Quà tặng túi Tote phiên bản giới hạn từ BTC", false, false, true, true],
-  ["Tạp chí xu hướng Beauty Summit 2026 phiên bản giới hạn", false, false, true, true],
-  ["01 suất PRIVATE COACHING 1:1 theo slot giới hạn của BTC để trao đổi trực tiếp, nhận tư vấn cá nhân hoá từ chuyên gia.", false, false, true, true],
-  ["Tham dự HỘI THẢO chuyên đề 'Phát triển thị trường tiêu dùng trong nước đối với ngành hàng hóa mỹ phẩm', được hỗ trợ chuyên môn bởi Cục Quản lý và Phát triển thị trường trong nước, đơn vị tổ chức: Hoàng Tú Holdings.", false, false, false, true],
-  ["Tham gia LUXURY GALA DINNER, gặp gỡ trực tiếp ĐẠI SỨ THƯƠNG HIỆU KIM BUM – kết nối cùng dàn diễn giả, KOLS và CEO của nhiều thương hiệu danh tiếng.", false, false, false, true]
-];
-
-const ticketCards = [
-  {
-    name: "VÉ GOLD",
-    price: "99.000 VNĐ",
-    oldPrice: "199k",
-    theme: {
-      card: "border-[#f5d27a] bg-[linear-gradient(180deg,#fff8e9,#f4d99c)] text-[#4a1118]",
-      title: "text-[#8a0f24]",
-      price: "text-[#b1132a]",
-      oldPrice: "text-[#835c1e]"
-    },
-    details: [
-      "Cơ hội gặp gỡ giao lưu nam diễn viên Hàn Quốc Kim Bum.",
-      "Tham quan toàn bộ khu booth, trải nghiệm sản phẩm.",
-      "Nhận quà tặng và voucher từ hơn 200 thương hiệu chính hãng.",
-      "Tham gia các hoạt động sân khấu theo lịch trình độc quyền từ BTC.",
-      "Nhận VOUCHER GIẢM 35% khi mua bộ sách 6 cẩm nang kinh doanh thực chiến cho ngành làm đẹp"
-    ]
-  },
-  {
-    name: "VÉ RUBY",
-    price: "399.000 VNĐ",
-    oldPrice: "599k",
-    theme: {
-      card: "border-[#f3a0b7] bg-[linear-gradient(180deg,#fff1f5,#ffd6e2)] text-[#4a0d1e]",
-      title: "text-[#9f1239]",
-      price: "text-[#e11d48]",
-      oldPrice: "text-[#7f1d1d]"
-    },
-    details: [
-      "Bao gồm toàn bộ quyền lợi của vé Gold.",
-      "Kết nối trực tiếp với hơn 200 thương hiệu trong ngành làm đẹp.",
-      "Tham dự hội thảo chuyên sâu về Da liễu và Marketing.",
-      "Cập nhật chiến lược tăng trưởng từ đội ngũ chuyên gia đầu ngành."
-    ]
-  },
-  {
-    name: "VÉ VIP",
-    price: "999.000 VNĐ",
-    oldPrice: "1.599k",
-    theme: {
-      card: "border-[#cab4ff] bg-[linear-gradient(180deg,#f7f0ff,#eadcff)] text-[#251144]",
-      title: "text-[#6d28d9]",
-      price: "text-[#a855f7]",
-      oldPrice: "text-[#6b4a8d]"
-    },
-    details: [
-      "Bao gồm toàn bộ quyền lợi của vé Ruby.",
-      "Nhận bộ quà tặng túi Tote phiên bản giới hạn từ BTC.",
-      "Sở hữu tạp chí xu hướng Beauty Summit 2026.",
-      "Sở hữu trọn bộ sách 6 CẨM NANG KINH DOANH THỰC CHIẾN NGÀNH LÀM ĐẸP trị giá 1.200.000 VNĐ.",
-      "Đặc quyền đăng ký Private Coaching 1:1 theo slot giới hạn."
-    ]
-  }
-];
-
-const dayOne = [
-  ["9h00 - 11h00", "Hội thảo chuyên đề 'Phát triển thị trường tiêu dùng trong nước đối với ngành hàng hóa mỹ phẩm', được hỗ trợ chuyên môn bởi Cục Quản lý và Phát triển thị trường trong nước. Đơn vị tổ chức: Hoàng Tú Holdings."],
-  ["11h00 - 11h30", "Khai mạc Beauty Summit 2026."],
-  ["11h30 - 12h00", "Giao lưu cùng đại sứ thương hiệu Kim Bum."],
-  ["13h00 - 17h00", "Hội thảo Da liễu: cập nhật phác đồ điều trị và xu hướng thẩm mỹ 2026."],
-  ["13h00 - 16h00", "Private Coaching 1:1 về Marketing & Sales: tăng trưởng doanh số."],
-  ["13h00 - 16h00", "TalkZone 360 – Giới thiệu sản phẩm & Demo Công nghệ"],
-  ["13h00 - 16h00", "Megalive – Đại tiệc Shopping Mỹ Phẩm Beauty Summit 2026"]
-];
-
-const dayTwo = [
-  ["8h00 - 9h00", "Đón khách và check-in."],
-  ["9h00 - 12h00", "Hội thảo Marketing – Phiên 1: 'Kiến tạo hệ thống tăng trưởng doanh thu trong kỷ nguyên AI & thương mại điện tử'"],
-  ["9h00 - 12h00", "TalkZone 360 – Giới thiệu sản phẩm & Demo Công nghệ"],
-  ["13h30 - 14h30", "Megalive – Đại tiệc Shopping Mỹ Phẩm Beauty Summit 2026"],
-  ["13h30 - 16h00", "Hội thảo Marketing – Phiên 2: 'Xây dựng bộ máy Marketing hiệu suất cao: Từ công cụ đến con người'"],
-  ["13h30 - 15h00", "TalkZone 360 – Giới thiệu sản phẩm & Demo Công nghệ"],
-  ["16h00 - 17h00", "Lễ trao chứng chỉ tốt nghiệp ISO 17024"],
-  ["17h00", "Bế mạc Beauty Summit 2026"]
-];
-
-const steps = [
-  ["1", "Chọn hạng vé", "Chọn các hạng vé theo nhu cầu của bạn"],
-  ["2", "Đăng ký thông tin", "Điền đầy đủ thông tin theo hướng dẫn từ ban tổ chức."],
-  ["3", "Thanh toán vé", "Xác nhận thông tin và hoàn tất thanh toán theo tài khoản nhận."],
-  ["4", "Nhận vé tham dự", "Vé điện tử được gửi tới email và zalo của bạn sau khi thanh toán thành công."]
-];
-
-const speakerSlides = [
-  {
-    image: "/images/banner-kim-bum-dai-su-thuong-hieu-bs-26-new_1.webp",
-    title: "Dàn diễn giả và chuyên gia đầu ngành",
-    eyebrow: "Beauty Summit 2026",
-    text: "Không gian hội thảo, triển lãm và kết nối kinh doanh dành cho chủ spa, clinic và thương hiệu làm đẹp."
-  },
-  {
-    image: "/images/banner-dien-gia-tc-25526.webp",
-    title: "Cập nhật chiến lược tăng trưởng",
-    eyebrow: "Hội thảo chuyên sâu",
-    text: "Gặp gỡ các chuyên gia giàu kinh nghiệm trong lĩnh vực da liễu, marketing, vận hành và phát triển thương hiệu."
-  },
-  {
-    image: "/images/banner-dien-gia-tc-19526.webp",
-    title: "Kết nối cộng đồng ngành làm đẹp",
-    eyebrow: "Networking",
-    text: "Tạo cơ hội hợp tác giữa chủ spa, clinic, nhà phân phối và các thương hiệu mỹ phẩm chính hãng."
-  },
-  {
-    image: "/images/dai-su-kim-bum-ban-ve-bs-26-34416.webp",
-    title: "Kết nối cộng đồng ngành làm đẹp",
-    eyebrow: "Networking",
-    text: "Tạo cơ hội hợp tác giữa chủ spa, clinic, nhà phân phối và các thương hiệu mỹ phẩm chính hãng."
-  }
-];
-
-const gallerySlides = [
-  {
-    image: "/images/banner-dien-gia-ban-ve-26-34-2.webp",
-    title: "Không gian triển lãm quy mô lớn",
-    eyebrow: "Beauty Summit Experience",
-    text: "Khám phá booth thương hiệu, sản phẩm mới, hoạt động sân khấu và các khu trải nghiệm xuyên suốt sự kiện."
-  },
-  {
-    image: "/images/banner-dien-gia-ban-ve-26-34-4.webp",
-    title: "Trải nghiệm sản phẩm chính hãng",
-    eyebrow: "Brand Showcase",
-    text: "Cập nhật xu hướng chăm sóc sắc đẹp và nhận ưu đãi từ hệ sinh thái hơn 200 thương hiệu tham dự."
-  },
-  {
-    image: "/images/banner-dien-gia-ban-ve-26-34-5.webp",
-    title: "Khoảnh khắc kết nối và giao lưu",
-    eyebrow: "Community",
-    text: "Nơi cộng đồng ngành làm đẹp gặp gỡ, học hỏi, trao đổi kinh nghiệm và mở rộng cơ hội kinh doanh."
-  },
-  {
-    image: "/images/banner-dien-gia-ban-ve-26-34-3.webp",
-    title: "Khoảnh khắc kết nối và giao lưu",
-    eyebrow: "Community",
-    text: "Nơi cộng đồng ngành làm đẹp gặp gỡ, học hỏi, trao đổi kinh nghiệm và mở rộng cơ hội kinh doanh."
-  },
-  {
-    image: "/images/anh-giua-bai-lp-25526-1.webp",
-    title: "Khoảnh khắc kết nối và giao lưu",
-    eyebrow: "Community",
-    text: "Nơi cộng đồng ngành làm đẹp gặp gỡ, học hỏi, trao đổi kinh nghiệm và mở rộng cơ hội kinh doanh."
-  }
-];
-
-const processPhoneSlides = [
-  {
-    image: "/images/chon_ve.webp",
-    alt: "Demo màn hình đăng ký Beauty Summit"
-  },
-  {
-    image: "/images/dien_thong_tin.webp",
-    alt: "Demo quy trình mua vé Beauty Summit"
-  },
-  {
-    image: "/images/thanh_toan.webp",
-    alt: "Demo nhận vé tham dự Beauty Summit"
-  },
-  {
-    image: "/images/zbs.webp",
-    alt: "Demo thông tin sự kiện Beauty Summit"
-  }
-];
-
 const sectionShell = "px-4 py-10 sm:px-6 sm:py-18 lg:px-[72px] lg:py-[72px]";
 const sectionHead = "mx-auto mb-8 w-full max-w-[980px] text-center";
-const eyebrow = "text-sm font-extrabold uppercase text-[#f2c76b]";
+const eyebrow = "text-sm font-extrabold uppercase text-[#60a5fa]";
 const heading = "mt-2 text-[28px] font-black uppercase leading-[1.08] text-white sm:text-[40px] lg:text-[52px]";
-const countdownBox = "grid min-h-[50px] place-items-center gap-0.5 rounded-xl border border-[#d9c7ff] bg-[linear-gradient(180deg,#ffffff,#f6efff)] p-1.5 text-[10px] font-black uppercase text-[#7c4fc7] shadow-[0_8px_18px_rgba(111,70,190,0.12)]";
-const glowButtonClass = "relative inline-flex min-h-11 min-w-[142px] cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-full bg-[linear-gradient(135deg,#2b3064_0%,#8e44ad_50%,#e91e63_100%)] py-1.5 pl-4 pr-1.5 text-sm font-extrabold text-white shadow-[0_12px_24px_rgba(92,42,156,0.32),inset_0_0_0_1px_rgba(255,255,255,0.3)] transition-transform duration-200 ease-out before:absolute before:bottom-[-40%] before:left-[-70px] before:top-[-40%] before:w-[54px] before:rotate-[18deg] before:animate-[lp-cta-shine_2.2s_ease-in-out_infinite] before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.8),transparent)] hover:-translate-y-1 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:min-h-12 sm:min-w-[164px] sm:pl-5 sm:text-sm lg:min-h-[54px] lg:min-w-[188px] lg:pl-6 lg:text-base";
-const checkoutFieldClass = "min-h-11 w-full min-w-0 rounded-xl border border-[#dfcdfa] px-3.5 text-sm font-medium outline-none focus:border-[#9c64df] focus:ring-4 focus:ring-[#b16bea24] sm:min-h-12 sm:px-4 sm:text-base";
+const countdownBox = "grid min-h-[50px] place-items-center gap-0.5 rounded-xl border border-[#bfdbfe] bg-[linear-gradient(180deg,#ffffff,#eff6ff)] p-1.5 text-[10px] font-black uppercase text-[#1d4ed8] shadow-[0_8px_18px_rgba(37,99,235,0.12)]";
+const glowButtonClass = "relative inline-flex min-h-11 min-w-[142px] cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-full bg-[#1260c2] py-1.5 pl-4 pr-1.5 text-sm font-extrabold text-white shadow-[0_12px_24px_rgba(37,99,235,0.30),inset_0_0_0_1px_rgba(255,255,255,0.3)] transition-transform duration-200 ease-out before:absolute before:bottom-[-40%] before:left-[-70px] before:top-[-40%] before:w-[54px] before:rotate-[18deg] before:animate-[lp-cta-shine_2.2s_ease-in-out_infinite] before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.8),transparent)] hover:-translate-y-1 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:min-h-12 sm:min-w-[164px] sm:pl-5 sm:text-sm lg:min-h-[54px] lg:min-w-[188px] lg:pl-6 lg:text-base";
+const checkoutFieldClass = "min-h-11 w-full min-w-0 rounded-xl border border-[#d1d5db] px-3.5 text-sm font-medium outline-none focus:border-[#2563eb] focus:ring-4 focus:ring-[#2563eb22] sm:min-h-12 sm:px-4 sm:text-base";
 
 const initialForm: PurchaseForm = {
   name: "",
@@ -268,7 +85,6 @@ export function BeautySummitLadipage() {
   const [loadingTickets, setLoadingTickets] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [processStepIndex, setProcessStepIndex] = useState(0);
 
   const selectedTickets: CartTicketInput[] = tickets
     .map((ticket) => {
@@ -284,10 +100,6 @@ export function BeautySummitLadipage() {
 
   const summary = calculateCartSummary(selectedTickets, null);
 
-  function updateProcessStep(nextIndex: number) {
-    const normalizedIndex = (nextIndex + processPhoneSlides.length) % processPhoneSlides.length;
-    setProcessStepIndex(normalizedIndex);
-  }
 
   useEffect(() => {
     function handleScroll() {
@@ -455,349 +267,46 @@ export function BeautySummitLadipage() {
   }, []);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#fff] text-[#fff8e8]">
-      <header
-        className={[
-          "fixed inset-x-0 top-0 z-50 grid min-h-[66px] grid-cols-[1fr_auto] items-center gap-x-3 border-b border-[#f2c76b3d] bg-[#fff] px-3.5 py-2 opacity-0 shadow-[0_18px_45px_rgba(25,2,8,0.28)] backdrop-blur-[18px] transition duration-300 sm:min-h-[72px] sm:grid-cols-[150px_1fr_180px] sm:gap-3 sm:px-4 lg:min-h-[76px] lg:grid-cols-[220px_minmax(280px,1fr)_220px] lg:gap-[22px] lg:px-[72px]",
-          showHeader ? "translate-y-0 opacity-100" : "-translate-y-full"
-        ].join(" ")}
-      >
-        <a className="inline-flex w-fit items-center" href="#top" aria-label="Beauty Summit 2026">
-          <img className="block w-[96px] sm:w-[126px] lg:w-[142px]" src="/images/logo_bs.png" alt="Beauty Summit" />
-        </a>
-        <div className="hidden w-full grid-cols-4 gap-1.5 sm:grid sm:w-[360px] sm:justify-self-center lg:w-[430px] lg:gap-2" aria-label="Đồng hồ đếm ngược Beauty Summit 2026">
-          <CountdownItem value={countdown.days} label="Ngày" compact />
-          <CountdownItem value={countdown.hours} label="Giờ" compact />
-          <CountdownItem value={countdown.minutes} label="Phút" compact />
-          <CountdownItem value={countdown.seconds} label="Giây" compact />
+    <main className="min-h-screen overflow-hidden bg-[#020617] text-[#f8fafc]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#dbeafe] bg-white/92 px-4 py-3 shadow-[0_10px_20px_rgba(8,3,15,0.2)] backdrop-blur-xl sm:px-6 lg:px-[72px]">
+        <div className="mx-auto flex min-h-[58px] w-full max-w-[1440px] flex-wrap items-center justify-between gap-4 sm:min-h-[64px] sm:gap-6">
+          <a className="inline-flex  items-center justify-center" href="#top" aria-label="The Future Of Business">
+            <span className="text-[40px] text-bold text-[#020617]">FOB</span>
+          </a>
+          <SingleTicketCheckout
+            floating={false}
+            buttonLabel="Mua vé ngay"
+            className="stc-trigger-header"
+          />
         </div>
-        <GlowButton className="justify-self-end" label="Mua vé ngay" onClick={openTicketModal} />
       </header>
 
-      <section
-        className="relative flex min-h-[640px] flex-col bg-[linear-gradient(90deg,rgba(43,4,10,0.94)_0%,rgba(86,9,22,0.84)_45%,rgba(135,18,35,0.58)_100%),url('/images/banner-web.webp')] bg-cover bg-center px-4 pb-10 pt-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-[180px] sm:min-h-[760px] sm:px-6 sm:pb-14 lg:min-h-[92vh] lg:px-[72px] lg:pb-[72px] lg:pt-[22px]"
-        id="top"
-      >
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <a className="inline-flex items-center" href="#top" aria-label="Beauty Summit 2026">
-            <img className="block w-[118px] sm:w-[150px]" src="/images/logo_bs_white.png" alt="Beauty Summit" />
-          </a>
-          <GlowButton
-            className="min-w-[138px] scale-90 justify-self-end sm:scale-100"
-            label="Mua vé ngay"
-            onClick={openTicketModal}
-          />
-        </div>
-        <div className="relative z-10 mt-auto w-full max-w-[760px] pt-[70px] lg:pt-[12vh]">
-          <p className="mb-4 inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-extrabold uppercase tracking-[0.16em] text-white shadow-[0_10px_28px_rgba(255,255,255,0.12)] backdrop-blur-md sm:text-base">Đếm ngược tới</p>
-          <h1 className="text-[38px] font-black uppercase leading-[0.96] text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.42)] sm:text-[72px] sm:leading-[0.92] lg:text-[104px]">
-            Beauty Summit 2026
-          </h1>
-          <p className="mt-4 max-w-[640px] text-sm font-medium leading-6 text-[#ffe7c0] sm:mt-6 sm:text-xl sm:leading-7">
-            Triển lãm thương mại quốc tế ngành làm đẹp lớn nhất Việt Nam, nơi hội tụ thương hiệu,
-            chuyên gia, spa, clinic và cộng đồng kinh doanh làm đẹp toàn quốc.
-          </p>
-          <div className="my-5 grid w-full max-w-[640px] grid-cols-4 gap-2 sm:my-7 sm:gap-3" aria-label="Đếm ngược sự kiện">
-            <HeroCountdownItem value={countdown.days} label="Ngày" />
-            <HeroCountdownItem value={countdown.hours} label="Giờ" />
-            <HeroCountdownItem value={countdown.minutes} label="Phút" />
-            <HeroCountdownItem value={countdown.seconds} label="Giây" />
-          </div>
-          <ActionButtons align="left" onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-        </div>
-      </section>
-
-      <ImageShowcaseSlider slides={speakerSlides} onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-
-      <section className={`${sectionShell} bg-white text-[#121018]`}>
-        <div className="mx-auto mb-10 w-full max-w-[980px] text-center">
-          <p className="text-sm font-extrabold uppercase text-[#211D51]">Hơn 1000 chủ spa/clinic đã đăng ký tham dự</p>
-          <h2 className="mt-2 bg-[linear-gradient(90deg,#5E2493,#F13550)] bg-clip-text text-[28px] font-black uppercase leading-[1.35] text-transparent sm:text-[40px] lg:text-[52px]">
-            Họ đến vì điều gì?
-          </h2>
-        </div>
-        <div className="mx-auto grid w-full max-w-[1220px] gap-8 lg:grid-cols-3">
-          {benefits.map((item) => (
-            <article className="group relative flex min-h-[190px] items-center justify-center rounded-[48px] border-2 border-[#17151e] bg-white px-8 pb-9 pt-12 text-center shadow-[0_18px_42px_rgba(20,16,32,0.06)] transition-shadow duration-300 ease-out hover:shadow-[0_24px_54px_rgba(92,42,156,0.18)]" key={item}>
-              <span className="absolute left-1/2 top-0 grid h-16 w-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-[#17151e] bg-white transition-colors duration-300 ease-out group-hover:bg-[#ef4266]">
-                <BadgeCheck className="h-7 w-7 text-[#17151e] transition-colors duration-300 ease-out group-hover:text-white" strokeWidth={1.9} />
-              </span>
-              <p className="transform-gpu text-base font-bold leading-7 text-[#17151e] transition-transform duration-300 ease-out group-hover:-rotate-1 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:rotate-0 motion-reduce:group-hover:scale-100 sm:text-lg">{item}</p>
-            </article>
-          ))}
-        </div>
-        <ActionButtons className="mt-8" onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-      </section>
-
-      <section className={`${sectionShell} bg-[#fff] text-[#370912]`} id="benefits">
-        <div className={sectionHead}>
-          <p className="text-sm font-extrabold uppercase text-[#211D51]">Số lượng vé giới hạn</p>
-          <h2 className="mt-2 text-[28px] font-black uppercase leading-[1.35] bg-[linear-gradient(90deg,#5E2493,#F13550)] bg-clip-text text-transparent sm:text-[40px] lg:text-[52px]">
-            Đặt mua vé sớm, giá tốt hơn, ưu đãi nhiều hơn
-          </h2>
-        </div>
-
-        <div className="mx-auto py-4 grid w-full max-w-[1180px] gap-4 lg:grid-cols-3">
-          {ticketCards.map((ticket) => (
-            <article className={`rounded-[12px] border p-7 shadow-[0_18px_36px_rgba(22,2,7,0.18)] ${ticket.theme.card}`} key={ticket.name}>
-              <h3 className={`text-[28px] font-black ${ticket.theme.title}`}>{ticket.name}</h3>
-              <p className={`my-3 text-[22px] font-black ${ticket.theme.price}`}>
-                {ticket.price} <span className={`text-sm ${ticket.theme.oldPrice}`}>({ticket.oldPrice})</span>
-              </p>
-              <ul className="list-disc pl-5 marker:text-current">
-                {ticket.details.map((detail) => (
-                  <li className="mt-2.5 text-sm font-semibold leading-6" key={detail}>{detail}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-
-        <div className="mx-auto mb-5 w-full max-w-[1120px] text-center text-sm font-extrabold leading-7 text-[#8d1528]">
-          Lưu ý quan trọng: mỗi mã vé chỉ được check-in 01 lần duy nhất. Quý khách vui lòng không
-          check-in trước thời gian diễn ra sự kiện chính thức để đảm bảo quyền lợi.
-        </div>
-        <div className="mx-auto w-full max-w-[1180px] overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse bg-[#fff]">
-            <thead>
-              <tr>
-                <th className="border border-[#752f0c2e] bg-[#5E2493] p-4 text-sm uppercase text-[#fff]">Quyền lợi</th>
-                {["Gold", "Ruby", "VIP", "V.VIP"].map((tier) => (
-                  <th className="border border-[#752f0c2e] bg-[#5E2493] p-4 text-sm uppercase text-[#fff]" key={tier}>{tier}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {benefitRows.map(([label, gold, ruby, vip, vvip]) => (
-                <tr key={String(label)}>
-                  <td className="border border-[#752f0c2e] p-3 lg:p-4 text-sm font-semibold leading-6 text-[#3d1320]">{label}</td>
-                  {[gold, ruby, vip, vvip].map((enabled, index) => (
-                    <td className="border border-[#752f0c2e] p-4 text-center text-[28px] font-black text-[#771124]" key={index}>
-                      {enabled ? <Check className="mx-auto h-7 w-7" strokeWidth={3} /> : null}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ActionButtons className="mt-8" onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-      </section>
-
-      <ImageShowcaseSlider slides={gallerySlides} onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-
-      <section className={`${sectionShell} bg-[linear-gradient(180deg,#ffffff,#fff6fb_52%,#f5efff)]`}>
-        <div className="mx-auto mb-9 max-w-[980px] text-center">
-          <p className="inline-flex rounded-full bg-[#f1e7ff] px-5 py-2 text-sm font-black uppercase tracking-[0.16em] text-[#8b5cf6]">
-            Đặc quyền tham dự
-          </p>
-          <h2 className="mt-4 text-[26px] font-black uppercase leading-[1.35] bg-[linear-gradient(90deg,#5E2493,#F13550)] bg-clip-text text-transparent sm:text-[40px] lg:text-[48px]">
-            Quà tặng & trải nghiệm độc quyền vé VIP
-          </h2>
-        </div>
-        <div className="mx-auto grid max-w-[1480px] gap-6 lg:grid-cols-3">
-          <GiftCard image="/images/anh-sec-5-ban-ve-24-26-1.webp" title="Hệ thống chiến lược tăng doanh thu & mở rộng quy mô spa" text="Dành riêng cho chủ spa, clinic và nhà quản lý trong ngành làm đẹp." />
-          <GiftCard image="/images/anh-ben-phai-moi-2426.webp" title="Bộ quà tặng độc quyền chỉ có tại Beauty Summit 2026" text="Bao gồm túi Tote phiên bản giới hạn và tạp chí xu hướng Beauty Summit." />
-          <GiftCard image="/images/banner-dien-gia-tc-19526.webp" title="Private Coaching 1:1" text="20 phút gặp trực tiếp chuyên gia để xác định vấn đề và định hướng giải pháp." />
-        </div>
-        <div className="mt-8">
-          <ActionButtons onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-        </div>
-      </section>
-
-      <section className={`${sectionShell} bg-[linear-gradient(180deg,#ffffff_0%,#fff4fb_48%,#f3edff_100%)]`} id="timeline">
-        <div className="mx-auto mb-9 max-w-[980px] text-center">
-          <p className="inline-flex rounded-full bg-[#f1e7ff] px-5 py-2 text-sm font-black uppercase tracking-[0.16em] text-[#8b5cf6]">
-            Beauty Summit 2026
-          </p>
-          <h2 className="mt-4 text-[30px] font-black uppercase leading-[1.35] bg-[linear-gradient(90deg,#5E2493,#F13550)] bg-clip-text text-transparent sm:text-[44px] lg:text-[58px]">
-            Timeline sự kiện
-          </h2>
-          <p className="mx-auto mt-4 max-w-[720px] text-base font-semibold leading-7 text-[#5b5178]">
-            Hai ngày trải nghiệm hội thảo, triển lãm, giao lưu đại sứ thương hiệu và kết nối cộng đồng ngành làm đẹp.
-          </p>
-        </div>
-        <div className="mx-auto grid w-full max-w-[1180px] gap-5 lg:grid-cols-2">
-          <ScheduleCard title="Ngày 1: 19.06.2026" items={dayOne} />
-          <ScheduleCard title="Ngày 2: 20.06.2026" items={dayTwo} />
-        </div>
-        <ActionButtons className="mt-8" onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-      </section>
-
-      <section className="bg-white px-4 py-8 sm:px-6 lg:px-12" aria-label="Không khí sự kiện">
-        <div className="mx-auto grid max-w-[1480px] gap-4 lg:grid-cols-3 lg:grid-rows-[320px_320px_320px]">
-          <GalleryImage
-            alt="Khách mời Beauty Summit"
-            className="lg:row-span-2"
-            image="/images/img-1.webp"
-          />
-          <GalleryImage
-            alt="Sân khấu Beauty Summit"
-            image="/images/img2.webp"
-          />
-          <GalleryImage
-            alt="Khách tham quan nhận quà tại booth"
-            image="/images/img-3.webp"
-          />
-          <GalleryImage
-            alt="Không khí đông đảo tại triển lãm"
-            image="/images/img-4.webp"
-          />
-          <GalleryImage
-            alt="Nhóm khách mời với túi quà Beauty Summit"
-            image="/images/img-5.webp"
-          />
-          <GalleryImage
-            alt="Khách trải nghiệm sản phẩm tại booth"
-            image="/images/img-6.webp"
-          />
-          <GalleryImage
-            alt="Khu vực gian hàng Beauty Summit"
-            image="/images/img-7.webp"
-          />
-          <GalleryImage
-            alt="Trải nghiệm dịch vụ chăm sóc sắc đẹp"
-            image="/images/img-8.webp"
+      <section className="relative overflow-hidden bg-[#f8fafc] px-3 pb-10 pt-[96px] sm:px-6 sm:pb-14 sm:pt-[112px] lg:px-[72px]" id="top">
+        <div className="mx-auto max-w-[1440px] rounded-[22px] border border-[#dbeafe] bg-[#020617] p-2 shadow-[0_30px_90px_rgba(0,0,0,0.36)] sm:rounded-[28px] sm:p-3">
+          <img
+            className="block w-full rounded-[16px] object-contain sm:rounded-[22px]"
+            src="/images/banner.png"
+            alt="The Future Of Business"
           />
         </div>
       </section>
-
-      <section className="overflow-hidden bg-[radial-gradient(circle_at_18%_42%,rgba(236,35,133,0.12),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fff7fb_100%)] px-4 py-12 sm:px-6 lg:px-[72px] lg:py-20">
-        <div className="mx-auto grid w-full max-w-[1320px] items-center gap-10 lg:grid-cols-[430px_1fr] lg:gap-16">
-          <PhoneProcessSlider
-            activeIndex={processStepIndex}
-            onChange={updateProcessStep}
-            slides={processPhoneSlides}
-          />
-
-          <div className="relative">
-            <p className="inline-flex rounded-full bg-[#fde6f4] px-5 py-2 text-sm font-black uppercase tracking-[0.14em] text-[#ec2385]">
-              Quy trình tham dự
-            </p>
-            <h2 className="mt-4 text-[24px] font-black uppercase leading-[1.08] tracking-[0.02em] text-[#202033] sm:text-[36px] lg:text-[46px]">
-              Hướng dẫn mua vé
-            </h2>
-
-            <div className="relative mt-8 space-y-4">
-              <div className="absolute bottom-8 left-6 top-8 w-0.5 bg-[linear-gradient(180deg,#ec2385,#9b22c8)] sm:left-8" />
-              {steps.map(([number, title, text], index) => {
-                const isActive = index === processStepIndex;
-
-                return (
-                  <button
-                    className="group relative grid w-full cursor-pointer grid-cols-[48px_1fr] gap-4 text-left sm:grid-cols-[64px_1fr] sm:gap-5"
-                    key={number}
-                    type="button"
-                    onClick={() => updateProcessStep(index)}
-                    aria-current={isActive ? "step" : undefined}
-                  >
-                    <span
-                      className={[
-                        "relative z-10 grid h-12 w-12 place-items-center self-start rounded-full text-xl font-black text-white shadow-[0_12px_24px_rgba(210,22,151,0.34)] transition duration-300 sm:h-16 sm:w-16",
-                        isActive
-                          ? "bg-[linear-gradient(135deg,#ff238f,#9b22c8)] scale-105"
-                          : "bg-[linear-gradient(135deg,#dc1a9a,#b21fca)] group-hover:-translate-y-1"
-                      ].join(" ")}
-                    >
-                      {number}
-                    </span>
-                    <span
-                      className={[
-                        "block rounded-2xl border px-5 py-4 shadow-[0_16px_42px_rgba(236,35,133,0.09)] backdrop-blur transition duration-300 sm:px-6",
-                        isActive
-                          ? "border-[#ec2385]/45 bg-[#fff0f8] shadow-[0_20px_54px_rgba(236,35,133,0.16)]"
-                          : "border-[#f8d4ea] bg-white/86 group-hover:border-[#ec2385]/40 group-hover:shadow-[0_20px_54px_rgba(236,35,133,0.14)]"
-                      ].join(" ")}
-                    >
-                      <span className="block text-lg font-black uppercase text-[#eb2385] sm:text-xl">{title}</span>
-                      <span className="mt-2 block text-sm font-medium leading-7 text-[#474253] sm:text-base">{text}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 border-l-[3px] border-[#ec2385] bg-[#fff0f8] px-5 py-4 text-sm italic leading-7 text-[#363241] sm:px-6">
-              <strong className="font-black uppercase text-[#ec2385]">Lưu ý quan trọng:</strong> Mỗi mã vé chỉ được check-in 01 lần duy nhất. Quý khách vui lòng không check-in trước thời gian diễn ra sự kiện chính thức để đảm bảo quyền lợi của mình.
-            </div>
-
-            <ActionButtons align="left" className="mt-8" onBuy={openTicketModal} onViewBenefits={scrollToBenefits} />
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[linear-gradient(110deg,#ef4266_0%,#9520a8_100%)] px-4 py-12 sm:px-6 lg:px-[72px] lg:py-14 lg:pb-24">
-        <h2 className="text-center text-[30px] font-black uppercase tracking-wide text-white sm:text-[42px] lg:text-[52px]">
-          Quy định vé Beauty Summit
-        </h2>
-
-        <div className="relative mx-auto mt-9 max-w-[1480px] rounded-2xl bg-[#ffe4ee] px-6 py-7 text-[#33333b] sm:px-9 lg:px-12 lg:py-9 pb-14 lg:pb-14">
-          <ul className="space-y-5 text-sm font-bold leading-7 sm:text-base">
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>
-                Vé là vé điện tử được gửi về zalo của số điện thoại đăng ký sau khi đặt vé thành công.
-                <br />
-                Mỗi mã vé chỉ dành cho 01 người và 01 lần sử dụng.
-              </p>
-            </li>
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>
-                Người mua vé có trách nhiệm tự bảo mật mã vé điện tử của mình.
-                <br />
-                Trong trường hợp phát sinh nhiều người sử dụng cùng một mã vé, BTC chỉ ghi nhận người check-in đầu tiên là hợp lệ và từ chối giải quyết các trường hợp còn lại.
-              </p>
-            </li>
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>Trẻ em dưới 14 tuổi phải có người lớn (18 tuổi trở lên) đi cùng trong suốt thời gian diễn ra sự kiện.</p>
-            </li>
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>
-                BTC chỉ phân phối vé duy nhất thông qua website chính thức https://beautysummit.vn/dang-ky-mua-ve, link phụ và các trang web ủy quyền. Quý khách vui lòng cảnh giác với những dịch vụ đặt vé không có nguồn gốc rõ ràng và các bên trung gian. BTC sẽ không giải quyết mọi trường hợp tranh chấp vé.
-              </p>
-            </li>
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>
-                Vé đã mua KHÔNG ĐƯỢC HOÀN TRẢ trong bất kỳ trường hợp nào.
-                <br />
-                Việc sử dụng hoặc phân phối vé cho mục đích tiếp thị quảng cáo mà không có sự cho phép của BTC được coi là trái quy định. BTC có quyền thu hồi lại vé và không hoàn tiền.
-              </p>
-            </li>
-            <li className="flex gap-3">
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-[#ff5b72]" strokeWidth={3} />
-              <p>Bằng việc xác nhận mua vé. Người mua đồng ý với tất cả Điều khoản & Điều kiện từ BTC.</p>
-            </li>
-          </ul>
-
-          <div className="absolute -bottom-10 left-1/2 w-[min(450px,90%)] -translate-x-1/2 rounded-2xl bg-white px-6 py-4 text-center text-[24px] font-black uppercase text-[#d10000] shadow-[0_18px_36px_rgba(81,21,91,0.18)] sm:text-[32px]">
-            Hotline: 0971.895.886
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-[#211D51] px-4 py-12 text-white sm:px-6 lg:px-[72px] lg:py-14">
+      <footer className="border-t border-[#1e293b] bg-[#020617] px-4 py-12 text-[#f8fafc] sm:px-6 lg:px-[72px] lg:py-14">
         <div className="mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[1fr_0.72fr_1fr] lg:items-start">
           <div>
-            <img className="w-[214px] max-w-full" src="/images/logo_bs_white.png" alt="Beauty Summit" />
             <p className="mt-4 max-w-[470px] text-sm font-semibold uppercase leading-7 tracking-wide">
-              <strong>Beauty Summit</strong> - Triển lãm thương mại quốc tế ngành làm đẹp lớn nhất Việt Nam
+              <strong>The Future Of Business</strong>
             </p>
 
             <div className="mt-4">
-              <h3 className="text-base font-black text-[#ff4aa0]">Thông tin liên hệ</h3>
+              <h3 className="text-base font-black text-[#60a5fa]">Thông tin liên hệ</h3>
               <p className="mt-5 text-base font-black uppercase leading-7">
-                Công ty Cổ phần Tập đoàn Hoàng Tú Holdings
+                TẠP CHÍ DOANH NGHIỆP VÀ HỘI NHẬP 
               </p>
               <div className="mt-2 space-y-2 text-sm leading-6">
-                <p>CS HN: Toà Star Tower - Dương Đình Nghệ, Cầu Giấy, Hà Nội</p>
-                <p>CS HCM: 238-242 Nguyễn Oanh, phường 17, Gò Vấp, HCM</p>
-                <p>Hotline: 0971.895.886 - 0971.985.886</p>
-                <p>Email: beautysummit@hoangtuholdings.com</p>
-                <p>Website: beautysummit.vn</p>
+                <p>Địa chỉ toà soạn: Phòng 1102, tầng 11, nhà D, Khách sạn Thể thao, Làng sinh viên Hacinco, đường Lê Văn Thiêm, phường Thanh Xuân, Thành phố Hà Nội.</p>
+                <p>Hotline: 024.355.63.010</p>
+                <p>Email: banbientap.dnhn@gmail.com.</p>
+                <p>Website: https://doanhnghiephoinhap.vn/</p>
               </div>
             </div>
           </div>
@@ -805,14 +314,14 @@ export function BeautySummitLadipage() {
           <div className="hidden lg:block" />
 
           <div className="text-center sm:text-left lg:text-center">
-            <h3 className="text-base font-black uppercase">Cộng đồng Beauty Summit</h3>
+            <h3 className="text-base font-black uppercase">Cộng đồng The Future Of Business</h3>
             <p className="mx-auto mt-6 max-w-[420px] text-base font-semibold leading-7">
-              Tham gia cộng đồng Beauty Summit để kết nối chuyên sâu với các thương hiệu và chuyên gia uy tín của ngành làm đẹp.
+              Tham gia cộng đồng The Future Of Business để kết nối chuyên sâu với các thương hiệu và chuyên gia.
             </p>
             <img
-              className="mt-8 w-[208px] max-w-full bg-white p-1 rounded-[8px] mx-auto"
+              className="mt-8 w-[180px] max-w-full bg-white p-1 rounded-[8px] mx-auto"
               src="/images/qr-zalo-me-zalo-me-g-alkrun710.webp"
-              alt="QR cộng đồng Beauty Summit"
+              alt="QR cộng đồng The Future Of Business"
             />
           </div>
         </div>
@@ -911,7 +420,7 @@ function ImageShowcaseSlider({
 
   return (
     <section className="bg-white px-3 py-6 sm:px-6 sm:py-8 lg:px-[54px]">
-      <div className="relative mx-auto aspect-[16/9] lg:aspect-[21/9] max-w-[1800px] overflow-hidden rounded-[14px] bg-[#8d78ff] shadow-[0_24px_70px_rgba(87,61,180,0.18)] sm:rounded-[24px]">
+      <div className="relative mx-auto aspect-[16/9] lg:aspect-[21/9] max-w-[1800px] overflow-hidden rounded-[14px] bg-[#1d4ed8] shadow-[0_24px_70px_rgba(37,99,235,0.18)] sm:rounded-[24px]">
         <div
           key={activeSlide.image}
           className="absolute inset-0 animate-[lp-fade-in_0.55s_ease_both] bg-cover bg-center"
@@ -920,7 +429,7 @@ function ImageShowcaseSlider({
           }}
         />
 
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(26,14,75,0.58),rgba(82,42,152,0.16)_44%,rgba(199,94,236,0.08))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.62),rgba(30,64,175,0.20)_44%,rgba(148,163,184,0.08))]" />
 
         <button
           className="absolute left-3 top-1/2 z-20 grid h-8 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-2xl text-[#161022] shadow-[0_10px_24px_rgba(22,16,34,0.16)] transition hover:scale-105 sm:left-7 sm:h-10 sm:w-14"
@@ -998,7 +507,7 @@ function PhoneProcessSlider({
           <button
             className={[
               "h-2.5 w-2.5 rounded-full transition",
-              index === activeIndex ? "bg-[#ec2385]" : "bg-[#c9c9c9]"
+              index === activeIndex ? "bg-[#2563eb]" : "bg-[#cbd5e1]"
             ].join(" ")}
             key={slide.image}
             type="button"
@@ -1010,7 +519,7 @@ function PhoneProcessSlider({
 
       <div className="mt-4 flex justify-center gap-3">
         <button
-          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-[#ec2385] text-[#ec2385] transition hover:-translate-y-0.5 hover:bg-[#fff0f8]"
+          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-[#2563eb] text-[#2563eb] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]"
           type="button"
           onClick={() => goToSlide(activeIndex - 1)}
           aria-label="Ảnh demo trước"
@@ -1018,7 +527,7 @@ function PhoneProcessSlider({
           <ArrowLeft className="h-4 w-4" strokeWidth={2.4} />
         </button>
         <button
-          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-[#ec2385] text-[#ec2385] transition hover:-translate-y-0.5 hover:bg-[#fff0f8]"
+          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-[#2563eb] text-[#2563eb] transition hover:-translate-y-0.5 hover:bg-[#eff6ff]"
           type="button"
           onClick={() => goToSlide(activeIndex + 1)}
           aria-label="Ảnh demo tiếp theo"
@@ -1427,7 +936,7 @@ function GiftCard({ image, title, text }: { image: string; title: string; text: 
           alt={title}
         />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(33,29,81,0),rgba(33,29,81,0.56))]" />
-        <span className="absolute left-5 top-5 rounded-full bg-white/92 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#8b5cf6] shadow-[0_10px_24px_rgba(33,29,81,0.16)]">
+        <span className="absolute left-5 top-5 rounded-full bg-white/92 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#2563eb] shadow-[0_10px_24px_rgba(15,23,42,0.16)]">
           Beauty Summit
         </span>
       </div>
@@ -1462,7 +971,7 @@ function ScheduleCard({ title, items }: { title: string; items: string[][] }) {
       <div className="p-7">
       {items.map(([time, text]) => (
         <div className="grid gap-2 border-t border-[#efe5ff] py-4 first:border-t-0 first:pt-0 sm:grid-cols-[132px_1fr] sm:gap-5" key={`${title}-${time}`}>
-          <strong className="inline-flex h-fit w-fit rounded-full bg-[#f1e7ff] px-3 py-1 text-sm font-black text-[#8b5cf6]">{time}</strong>
+          <strong className="inline-flex h-fit w-fit rounded-full bg-[#dbeafe] px-3 py-1 text-sm font-black text-[#1d4ed8]">{time}</strong>
           <p className="font-semibold leading-6 text-[#3b315a]">{text}</p>
         </div>
       ))}

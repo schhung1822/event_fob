@@ -3,25 +3,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://beautysummit.vn"),
+  metadataBase: new URL("https://sukien.eventhub.vn"),
   title: {
-    default: "Beauty Summit 2026 - Đăng ký mua vé",
-    template: "%s | Beauty Summit 2026"
+    default: "The Future Of Business",
+    template: "%s | The Future Of Business"
   },
   description:
-    "Đăng ký mua vé Beauty Summit 2026, sự kiện triển lãm, hội thảo và kết nối kinh doanh làm đẹp, spa, clinic và mỹ phẩm.",
+    "Đăng ký mua vé The Future Of Business, sự kiện triển lãm, hội thảo và kết nối kinh doanh làm đẹp, spa, clinic và mỹ phẩm.",
   keywords: [
-    "Beauty Summit 2026",
-    "mua vé Beauty Summit",
-    "sự kiện làm đẹp",
-    "triển lãm mỹ phẩm",
-    "hội thảo spa clinic",
-    "Kim Bum Beauty Summit"
+    "The Future Of Business",
+    "mua vé The Future Of Business"
   ],
-  applicationName: "Beauty Summit 2026",
-  authors: [{ name: "Beauty Summit" }],
-  creator: "Beauty Summit",
-  publisher: "Beauty Summit",
+  applicationName: "The Future Of Business",
+  authors: [{ name: "The Future Of Business" }],
+  creator: "The Future Of Business",
+  publisher: "The Future Of Business",
   alternates: {
     canonical: "/dang-ky-mua-ve"
   },
@@ -36,11 +32,11 @@ export const metadata: Metadata = {
     apple: "/images/favicon-bs.webp"
   },
   openGraph: {
-    title: "Beauty Summit 2026 - Đăng ký mua ve",
+    title: "The Future Of Business - Đăng ký mua ve",
     description:
-      "Đăng ký mua vé Beauty Summit 2026, gặp gỡ các chuyên gia đầu ngành, thương hiệu làm đẹp và đại sứ thương hiệu Kim Bum.",
+      "Đăng ký mua vé The Future Of Business, gặp gỡ các chuyên gia đầu ngành.",
     url: "/dang-ky-mua-ve",
-    siteName: "Beauty Summit 2026",
+    siteName: "The Future Of Business",
     locale: "vi_VN",
     type: "website",
     images: [
@@ -48,15 +44,15 @@ export const metadata: Metadata = {
         url: "/images/banner-kim-bum-dai-su-thuong-hieu-bs-26-new_1.webp",
         width: 1200,
         height: 630,
-        alt: "Beauty Summit 2026 cùng đại sứ thương hiệu Kim Bum"
+        alt: "The Future Of Business"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Beauty Summit 2026 - Đăng ký mua vé",
+    title: "The Future Of Business - Đăng ký mua vé",
     description:
-      "Đăng ký mua vé Beauty Summit 2026, Sự kiện kết nối kinh doanh nghành làm đẹp.",
+      "Đăng ký mua vé The Future Of Business, Sự kiện kết nối kinh doanh nghành làm đẹp.",
     images: ["/images/banner-kim-bum-dai-su-thuong-hieu-bs-26-new_1.webp"]
   },
   robots: {

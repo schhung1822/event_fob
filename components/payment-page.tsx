@@ -204,7 +204,7 @@ export function PaymentPage({
             <div className="empty-box">Không có dữ liệu đơn hàng.</div>
           ) : (
             <>
-              <section className="cardpay">
+              <section className="cardpay payment-order-card">
                 <div className="cardpay-title">Thông tin đơn hàng</div>
 
                 <div className="info-grid">
@@ -253,42 +253,42 @@ export function PaymentPage({
                 </div>
               </section>
 
-              <section className="cardpay">
+              <section className="cardpay payment-bank-card">
                 <div className="cardpay-title">Thông tin chuyển khoản</div>
 
-                <div className="pay-grid">
+                <div className="pay-grid payment-bank-info">
                   <div className="label">Ngân hàng</div>
                   <div className="value">{bankName}</div>
                   <div />
 
                   <div className="label">Số tài khoản</div>
-                  <div className="value">{bankAccount}</div>
                   <button
-                    className="copy-btn"
+                    className="value copy-value"
                     type="button"
                     onClick={() => void copyText(bankAccount)}
                   >
-                    Sao chép
+                    {bankAccount}
                   </button>
+                  <div />
 
                   <div className="label">Chủ tài khoản</div>
                   <div className="value">{bankOwner}</div>
                   <div />
 
                   <div className="label">Nội dung CK</div>
-                  <div className="value">{orderDetail.transferContent}</div>
                   <button
-                    className="copy-btn"
+                    className="value copy-value"
                     type="button"
                     onClick={() => void copyText(orderDetail.transferContent)}
                   >
-                    Sao chép
+                    {orderDetail.transferContent}
                   </button>
+                  <div />
                 </div>
 
-                <div className="divider" />
+                <div className="divider payment-bank-divider" />
 
-                <div className="qr-box">
+                <div className="qr-box payment-qr-box">
                   <img
                     alt="QR thanh toán"
                     src={`${qrBase}?acc=${encodeURIComponent(
@@ -301,7 +301,7 @@ export function PaymentPage({
                   />
                 </div>
 
-                <div className="btn-row">
+                <div className="btn-row payment-actions">
                   <button className="btn btn-primary" type="button" onClick={downloadQr}>
                     Tải ảnh QR
                   </button>
@@ -315,7 +315,7 @@ export function PaymentPage({
                   </button>
                 </div>
 
-                <div className="status-text">
+                <div className="status-text payment-status-text">
                   Sau khi hệ thống xác nhận thanh toán, bạn sẽ được chuyển tới trang
                   cảm ơn tự động.
                 </div>
@@ -326,19 +326,13 @@ export function PaymentPage({
       </div>
 
       <section className="payment-contact" aria-label="Thông tin liên hệ Beauty Summit">
-        <div className="payment-contact-brand">
-          <img
-            alt="Beauty Summit"
-            src="https://beautysummit.activate.vn/wp-content/uploads/2026/04/beauty.png"
-          />
-        </div>
 
-        <h2 className="payment-contact-title">BTC Beauty Summit 2026</h2>
+        <h2 className="payment-contact-title">The Future Of Business</h2>
 
         <div className="payment-contact-lines">
-          <p>Email: beautysummit@hoangtuholdings.com</p>
-          <p>Website: beautysummit.vn</p>
-          <p>Hotline/Zalo: 0971.895.886 | 0971.985.886</p>
+          <p>Email: banbientap.dnhn@gmail.com.</p>
+          <p>Website: doanhnghiephoinhap.vn</p>
+          <p>Hotline/Zalo:  024.355.63.010</p>
         </div>
       </section>
     </main>

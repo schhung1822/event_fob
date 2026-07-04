@@ -32,6 +32,7 @@ export type PurchaseForm = {
   email: string;
   gender: GenderValue | "";
   career: string;
+  brand?: string;
   hope: string;
 };
 
@@ -83,4 +84,8 @@ export type OrderDetail = {
 
 export type PaymentStatus = {
   status: "pending" | "paydone";
+};
+
+export type CheckedTicket = {
+  orderCode: string;
 };

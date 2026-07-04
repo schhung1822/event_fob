@@ -10,7 +10,6 @@ import {
   getMockTickets,
   getMockVoucher,
   hasMockOrderCode,
-  hasMockOrderId,
   markMockOrderPaid,
   saveMockOrder
 } from "@/lib/mock-store";
@@ -18,6 +17,7 @@ import type {
   CartTicketInput,
   CreateOrderInput,
   CreatedOrder,
+  CheckedTicket,
   OrderDetail,
   OrderRecord,
   PaymentStatus,
@@ -55,7 +55,6 @@ type VoucherRow = RowDataPacket & {
 
 type OrderRow = RowDataPacket & {
   ordercode: string;
-  order_id: string;
   create_time: string;
   name: string;
   phone: string;
@@ -229,15 +228,13 @@ async function generateUniqueCode(
     const code = generateCode(prefix);
 
     if (!connection) {
-      const exists =
-        prefix === "DH" ? hasMockOrderCode(code) : hasMockOrderId(code);
+      const exists = hasMockOrderCode(code);
       if (!exists) return code;
       continue;
     }
 
-    const column = prefix === "DH" ? "ordercode" : "order_id";
     const [rows] = await connection.query<RowDataPacket[]>(
-      `SELECT id FROM orders WHERE ${column} = ? LIMIT 1`,
+      "SELECT id FROM orders WHERE ordercode = ? LIMIT 1",
       [code]
     );
 
@@ -486,14 +483,14 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   const email = input.email.trim();
   const gender = input.gender;
   const career = input.career.trim();
+  const brand = input.brand?.trim() || "";
   const hope = input.hope.trim();
   const voucherCode = input.voucherCode?.trim() || "";
   const source = input.source?.trim() || "";
-  const trackingValue = "nextgency";
-  const ref = trackingValue;
-  const utmSource = trackingValue;
-  const utmMedium = trackingValue;
-  const utmCampaign = trackingValue;
+  const ref = input.ref?.trim() || "";
+  const utmSource = input.utmSource?.trim() || "";
+  const utmMedium = input.utmMedium?.trim() || "";
+  const utmCampaign = input.utmCampaign?.trim() || "";
   const fbp = input.fbp?.trim() || "";
   const fbc = input.fbc?.trim() || "";
   const ttp = input.ttp?.trim() || "";
@@ -520,7 +517,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   const pool = getDatabasePool();
 
   if (!pool) {
-    const orderId = await generateUniqueCode("OD");
+    let redirectOrderCode = "";
     const mockRecords: OrderRecord[] = [];
     const webhookTickets: Array<{ ordercode: string; ticket_name: string; price: number }> = [];
 
@@ -563,7 +560,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
 
         mockRecords.push({
           orderCode,
-          orderId,
+          orderId: orderCode,
           createTime,
           customerName: name,
           phone,
@@ -572,8 +569,12 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
           className: ticket.name,
           money,
           status: "new",
-          transferContent: orderId
+          transferContent: orderCode
         });
+
+        if (!redirectOrderCode) {
+          redirectOrderCode = orderCode;
+        }
 
         webhookTickets.push({
           ordercode: orderCode,
@@ -587,9 +588,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       decreaseMockVoucher(voucherCode);
     }
 
-    saveMockOrder(orderId, mockRecords);
+    saveMockOrder(redirectOrderCode, mockRecords);
     await sendRegisterWebhook({
-      order_id: orderId,
+      order_id: redirectOrderCode,
       create_time: createTime,
       ref,
       name,
@@ -597,6 +598,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       email,
       gender,
       career,
+      brand,
       hope,
       total_tickets: mockRecords.length,
       tickets: webhookTickets,
@@ -615,8 +617,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     });
 
     return {
-      orderId,
-      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(orderId)}`
+      orderId: redirectOrderCode,
+      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(redirectOrderCode)}`
     };
   }
 
@@ -625,7 +627,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   try {
     await connection.beginTransaction();
 
-    const orderId = await generateUniqueCode("OD", connection);
+    let redirectOrderCode = "";
     const webhookTickets: Array<{ ordercode: string; ticket_name: string; price: number }> = [];
     let inserted = 0;
 
@@ -685,13 +687,13 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
         await connection.query(
           `
             INSERT INTO orders (
-              ordercode, create_time, name, phone, email, gender, class, money, money_VAT,
-              status, is_gift, is_checkin, number_checkin, career, hope, ref, source,
-              send_noti, customer_id, voucher, utm_source, utm_medium, utm_campaign, order_id
+              ordercode, create_time, name, phone, email, gender, class, money,
+              status, is_gift, is_checkin, number_checkin, career, brand, ref, source,
+              send_noti, customer_id, voucher, utm_source, utm_medium, utm_campaign
             ) VALUES (
-              ?, ?, ?, ?, ?, ?, ?, ?, ?,
+              ?, ?, ?, ?, ?, ?, ?, ?,
               'new', 0, 0, 0, ?, ?, ?, ?,
-              0, ?, ?, ?, ?, ?, ?
+              0, ?, ?, ?, ?, ?
             )
           `,
           [
@@ -705,6 +707,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
             money,
             money,
             career,
+            brand,
             hope,
             ref,
             source,
@@ -712,10 +715,13 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
             voucherCode || null,
             utmSource,
             utmMedium,
-            utmCampaign,
-            orderId
+            utmCampaign
           ]
         );
+
+        if (!redirectOrderCode) {
+          redirectOrderCode = orderCode;
+        }
 
         webhookTickets.push({
           ordercode: orderCode,
@@ -736,7 +742,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     await connection.commit();
 
     await sendRegisterWebhook({
-      order_id: orderId,
+      order_id: redirectOrderCode,
       create_time: createTime,
       ref,
       name,
@@ -744,6 +750,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       email,
       gender,
       career,
+      brand,
       hope,
       total_tickets: inserted,
       tickets: webhookTickets,
@@ -762,8 +769,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     });
 
     return {
-      orderId,
-      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(orderId)}`
+      orderId: redirectOrderCode,
+      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(redirectOrderCode)}`
     };
   } catch (error) {
     await connection.rollback();
@@ -773,6 +780,32 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   }
 }
 
+
+export async function getPaidTicketByOrderCode(
+  orderCode: string
+): Promise<CheckedTicket | null> {
+  const code = orderCode.trim();
+  if (!code) return null;
+
+  const pool = getDatabasePool();
+  if (!pool) {
+    const mockOrder = getMockOrder(code);
+    if (!mockOrder?.some((record) => isPaidStatus(record.status))) return null;
+    return { orderCode: code };
+  }
+
+  const [rows] = await pool.query<RowDataPacket[]>(
+    "SELECT ordercode, status FROM orders WHERE ordercode = ? LIMIT 1",
+    [code]
+  );
+
+  const row = rows[0];
+  if (!row || !isPaidStatus(String(row.status || ""))) return null;
+
+  return {
+    orderCode: String(row.ordercode || code)
+  };
+}
 export async function getOrderDetail(orderId: string) {
   const code = orderId.trim();
   if (!code) return null;
@@ -785,9 +818,9 @@ export async function getOrderDetail(orderId: string) {
 
   const [rows] = await pool.query<OrderRow[]>(
     `
-      SELECT ordercode, order_id, create_time, name, phone, email, gender, class, money, status
+      SELECT ordercode, create_time, name, phone, email, gender, class, money, status
       FROM orders
-      WHERE order_id = ?
+      WHERE ordercode = ?
       ORDER BY id ASC
     `,
     [code]
@@ -799,7 +832,7 @@ export async function getOrderDetail(orderId: string) {
 
   const records: OrderRecord[] = rows.map((row) => ({
     orderCode: row.ordercode,
-    orderId: row.order_id,
+    orderId: row.ordercode,
     createTime: row.create_time,
     customerName: row.name,
     phone: row.phone,
@@ -808,7 +841,7 @@ export async function getOrderDetail(orderId: string) {
     className: row.class,
     money: Number(row.money),
     status: row.status,
-    transferContent: row.order_id
+    transferContent: row.ordercode
   }));
 
   return buildOrderDetail(records);
@@ -885,7 +918,7 @@ export async function checkPaymentStatus(
   }
 
   const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT status FROM orders WHERE order_id = ? LIMIT 1",
+    "SELECT status FROM orders WHERE ordercode = ? LIMIT 1",
     [code]
   );
   const status = String(rows[0]?.status || "");
@@ -910,7 +943,7 @@ export async function markOrderPaid(orderId: string) {
     return;
   }
 
-  await pool.query("UPDATE orders SET status = 'paydone' WHERE order_id = ?", [code]);
+  await pool.query("UPDATE orders SET status = 'paydone' WHERE ordercode = ?", [code]);
 }
 
 export function buildRequestMeta(headers: Headers) {
