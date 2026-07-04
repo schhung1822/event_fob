@@ -10,13 +10,11 @@ export function clamp(value: number, min: number, max: number) {
 
 export function normalizePhone(phone: string) {
   const cleaned = phone.replace(/[^0-9+]/g, "");
+  const digits = cleaned.startsWith("+") ? cleaned.slice(1) : cleaned;
 
-  if (cleaned.startsWith("+84")) return cleaned;
-  if (cleaned.startsWith("84")) return `+${cleaned}`;
-  if (cleaned.startsWith("0")) return `+84${cleaned.slice(1)}`;
-  if (cleaned.startsWith("86")) return `+82${cleaned.slice(2)}`;
+  if (digits.startsWith("0")) return `84${digits.slice(1)}`;
 
-  return cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
+  return digits ? `+${digits}` : "";
 }
 
 export function getCookie(name: string) {

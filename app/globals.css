@@ -2936,3 +2936,30 @@ body {
   background: rgba(255, 255, 255, 0.72);
   color: #020617;
 }
+
+.stc-form-grid input.is-invalid,
+.stc-form-grid select.is-invalid {
+  border-color: #dc2626 !important;
+  background: #fffafa;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.14) !important;
+}
+
+.payment-alert-mobile {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .payment-alert-desktop {
+    display: none;
+  }
+
+  .payment-alert-mobile {
+    order: -2;
+    display: block;
+    margin: 0 0 20px;
+  }
+
+  .payment-bank-divider {
+    order: -1;
+  }
+}

@@ -17,6 +17,9 @@ import {
 
 type Step = "ticket" | "info";
 
+type RequiredField = "name" | "phone" | "email" | "gender";
+type FieldErrors = Partial<Record<RequiredField, string>>;
+
 type SingleTicketCheckoutProps = {
   className?: string;
   buttonLabel?: string;
@@ -33,6 +36,18 @@ const initialForm: PurchaseForm = {
   hope: ""
 };
 
+function normalizePhoneForSubmit(phone: string) {
+  const normalized = phone.trim().replace(/[\s.-]/g, "");
+
+  if (!/^\+?\d{8,15}$/.test(normalized)) return "";
+
+  const digits = normalized.startsWith("+") ? normalized.slice(1) : normalized;
+
+  if (digits.startsWith("0") && !/^0\d{8,10}$/.test(digits)) return "";
+
+  return normalized;
+}
+
 export function SingleTicketCheckout({
   className = "",
   buttonLabel = "Mua vé ngay",
@@ -46,6 +61,7 @@ export function SingleTicketCheckout({
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -98,6 +114,7 @@ export function SingleTicketCheckout({
   function openModal() {
     setStep("ticket");
     setErrorMessage("");
+    setFieldErrors({});
     setOpen(true);
   }
 
@@ -105,6 +122,20 @@ export function SingleTicketCheckout({
     if (submitting) return;
     setOpen(false);
     setErrorMessage("");
+    setFieldErrors({});
+  }
+
+  function updateFormField(field: keyof PurchaseForm, value: string) {
+    setForm((current) => ({ ...current, [field]: value }));
+
+    if (field === "name" || field === "phone" || field === "email" || field === "gender") {
+      setFieldErrors((current) => {
+        if (!current[field]) return current;
+        const next = { ...current };
+        delete next[field];
+        return next;
+      });
+    }
   }
 
   function continueToInfo() {
@@ -120,6 +151,7 @@ export function SingleTicketCheckout({
 
   async function submitOrder() {
     setErrorMessage("");
+    setFieldErrors({});
 
     if (!selectedTicket) {
       setErrorMessage("Vui lòng chọn một hạng vé.");
@@ -127,8 +159,21 @@ export function SingleTicketCheckout({
       return;
     }
 
-    if (!form.name.trim() || !form.phone.trim() || !form.email.trim() || !form.gender) {
-      setErrorMessage("Vui lòng điền đầy đủ họ tên, số điện thoại, email và giới tính.");
+    const normalizedPhone = normalizePhoneForSubmit(form.phone);
+    const nextFieldErrors: FieldErrors = {};
+
+    if (!form.name.trim()) nextFieldErrors.name = "Vui lòng nhập họ và tên.";
+    if (!form.phone.trim()) {
+      nextFieldErrors.phone = "Vui lòng nhập số điện thoại.";
+    } else if (!normalizedPhone) {
+      nextFieldErrors.phone = "Số điện thoại không hợp lệ.";
+    }
+    if (!form.email.trim()) nextFieldErrors.email = "Vui lòng nhập email.";
+    if (!form.gender) nextFieldErrors.gender = "Vui lòng chọn giới tính.";
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
+      setErrorMessage("Vui lòng kiểm tra các trường được đánh dấu đỏ.");
       return;
     }
 
@@ -155,6 +200,7 @@ export function SingleTicketCheckout({
         },
         body: JSON.stringify({
           ...form,
+          phone: normalizedPhone,
           voucherCode: "",
           tickets: ticketsPayload,
           source: window.location.href,
@@ -296,10 +342,12 @@ export function SingleTicketCheckout({
                     Họ và tên *
                     <input
                       type="text"
+                      className={fieldErrors.name ? "is-invalid" : undefined}
+                      aria-invalid={Boolean(fieldErrors.name)}
                       value={form.name}
                       placeholder="Nhập họ và tên"
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, name: event.target.value }))
+                        updateFormField("name", event.target.value)
                       }
                     />
                   </label>
@@ -308,10 +356,12 @@ export function SingleTicketCheckout({
                     Số điện thoại *
                     <input
                       type="tel"
+                      className={fieldErrors.phone ? "is-invalid" : undefined}
+                      aria-invalid={Boolean(fieldErrors.phone)}
                       value={form.phone}
                       placeholder="Số điện thoại/Zalo"
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, phone: event.target.value }))
+                        updateFormField("phone", event.target.value)
                       }
                     />
                   </label>
@@ -320,10 +370,12 @@ export function SingleTicketCheckout({
                     Email *
                     <input
                       type="email"
+                      className={fieldErrors.email ? "is-invalid" : undefined}
+                      aria-invalid={Boolean(fieldErrors.email)}
                       value={form.email}
                       placeholder="Email nhận thông tin vé"
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, email: event.target.value }))
+                        updateFormField("email", event.target.value)
                       }
                     />
                   </label>
@@ -331,12 +383,11 @@ export function SingleTicketCheckout({
                   <label>
                     Giới tính *
                     <select
+                      className={fieldErrors.gender ? "is-invalid" : undefined}
+                      aria-invalid={Boolean(fieldErrors.gender)}
                       value={form.gender}
                       onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          gender: event.target.value as PurchaseForm["gender"]
-                        }))
+                        updateFormField("gender", event.target.value)
                       }
                     >
                       <option value="">Chọn giới tính</option>
@@ -353,7 +404,7 @@ export function SingleTicketCheckout({
                       value={form.career}
                       placeholder="Nhập ngành nghề/lĩnh vực hoạt động"
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, career: event.target.value }))
+                        updateFormField("career", event.target.value)
                       }
                     />
                   </label>
@@ -365,7 +416,7 @@ export function SingleTicketCheckout({
                       value={form.brand}
                       placeholder="Nhập tên thương hiệu/doanh nghiệp"
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, brand: event.target.value }))
+                        updateFormField("brand", event.target.value)
                       }
                     />
                   </label>

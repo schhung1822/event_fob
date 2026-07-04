@@ -245,12 +245,7 @@ export function PaymentPage({
                     {formatCurrency(orderDetail.totalMoney)}
                   </div>
                 </div>
-
-                <div className="alert-box">
-                  <strong>Lưu ý:</strong> Quý khách vui lòng quét mã QR để thông tin
-                  được nhập tự động chính xác. Nếu chuyển khoản thủ công, xin lưu ý
-                  nhập đúng nội dung chuyển khoản để hệ thống ghi nhận và gửi về.
-                </div>
+                <PaymentNotice className="payment-alert-desktop" />
               </section>
 
               <section className="cardpay payment-bank-card">
@@ -301,6 +296,8 @@ export function PaymentPage({
                   />
                 </div>
 
+                <PaymentNotice className="payment-alert-mobile" />
+
                 <div className="btn-row payment-actions">
                   <button className="btn btn-primary" type="button" onClick={downloadQr}>
                     Tải ảnh QR
@@ -336,5 +333,13 @@ export function PaymentPage({
         </div>
       </section>
     </main>
+  );
+}
+function PaymentNotice({ className = "" }: { className?: string }) {
+  return (
+    <div className={`alert-box ${className}`}>
+      <strong>Lưu ý:</strong> Quý khách vui lòng quét mã QR để thông tin được nhập tự động chính xác.
+      Nếu chuyển khoản thủ công, xin lưu ý nhập đúng nội dung chuyển khoản để hệ thống ghi nhận và gửi vé.
+    </div>
   );
 }
