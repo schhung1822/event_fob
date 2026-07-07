@@ -6,13 +6,14 @@ export const dynamic = "force-dynamic";
 export default function ThanhToanPage({
   searchParams
 }: {
-  searchParams: { orderid?: string };
+  searchParams: { ordercode?: string; orderid?: string };
 }) {
   const bankConfig = getBankConfig();
+  const orderCode = (searchParams.ordercode || searchParams.orderid || "").trim();
 
   return (
     <PaymentPage
-      orderId={searchParams.orderid ?? ""}
+      orderId={orderCode}
       bankAccount={bankConfig.bankAccount}
       bankName={bankConfig.bankName}
       bankOwner={bankConfig.bankOwner}

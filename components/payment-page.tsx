@@ -327,8 +327,8 @@ export function PaymentPage({
         <h2 className="payment-contact-title">The Future Of Business</h2>
 
         <div className="payment-contact-lines">
-          <p>Email: banbientap.dnhn@gmail.com.</p>
-          <p>Website: doanhnghiephoinhap.vn</p>
+          <p>Email: <a href="mailto:event@smesummit.vn">event@smesummit.vn</a></p>
+          <p>Website: <a href="https://smesummit.vn/">smesummit.vn</a></p>
           <p>Hotline/Zalo:  024.355.63.010</p>
         </div>
       </section>

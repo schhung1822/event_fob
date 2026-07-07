@@ -55,6 +55,7 @@ type VoucherRow = RowDataPacket & {
 
 type OrderRow = RowDataPacket & {
   ordercode: string;
+  order_id: string | null;
   create_time: string;
   name: string;
   phone: string;
@@ -68,6 +69,7 @@ type OrderRow = RowDataPacket & {
 const EXTERNAL_WEBHOOK_TIMEOUT_MS = Number(
   process.env.BS_WEBHOOK_TIMEOUT_MS || 15000
 );
+let hasOrderIdColumnCache: boolean | null = null;
 
 function getBaseUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -244,6 +246,18 @@ async function generateUniqueCode(
   return generateCode(prefix);
 }
 
+async function hasOrdersOrderIdColumn(connection: Pick<PoolConnection, "query">) {
+  if (hasOrderIdColumnCache !== null) {
+    return hasOrderIdColumnCache;
+  }
+
+  const [rows] = await connection.query<RowDataPacket[]>(
+    "SHOW COLUMNS FROM orders LIKE 'order_id'"
+  );
+  hasOrderIdColumnCache = rows.length > 0;
+  return hasOrderIdColumnCache;
+}
+
 function validateCreateOrderInput(input: CreateOrderInput) {
   if (!input.name.trim() || !input.phone.trim() || !input.email.trim() || !input.gender) {
     throw new Error("Vui long dien day du: Ho ten, SDT, Email va Gioi tinh.");
@@ -270,7 +284,7 @@ function buildOrderDetail(records: OrderRecord[]): OrderDetail {
     customerName: first.customerName,
     phone: first.phone,
     email: first.email,
-    transferContent: first.transferContent,
+    transferContent: first.orderId,
     totalMoney: records.reduce((sum, record) => sum + record.money, 0),
     status: records.some((record) => isPaidStatus(record.status)) ? "paydone" : "pending",
     records
@@ -517,7 +531,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   const pool = getDatabasePool();
 
   if (!pool) {
-    let redirectOrderCode = "";
+    const redirectOrderId = await generateUniqueCode("OD");
     const mockRecords: OrderRecord[] = [];
     const webhookTickets: Array<{ ordercode: string; ticket_name: string; price: number }> = [];
 
@@ -560,7 +574,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
 
         mockRecords.push({
           orderCode,
-          orderId: orderCode,
+          orderId: redirectOrderId,
           createTime,
           customerName: name,
           phone,
@@ -569,12 +583,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
           className: ticket.name,
           money,
           status: "new",
-          transferContent: orderCode
+          transferContent: redirectOrderId
         });
-
-        if (!redirectOrderCode) {
-          redirectOrderCode = orderCode;
-        }
 
         webhookTickets.push({
           ordercode: orderCode,
@@ -588,9 +598,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
       decreaseMockVoucher(voucherCode);
     }
 
-    saveMockOrder(redirectOrderCode, mockRecords);
+    saveMockOrder(redirectOrderId, mockRecords);
     await sendRegisterWebhook({
-      order_id: redirectOrderCode,
+      order_id: redirectOrderId,
       create_time: createTime,
       ref,
       name,
@@ -617,8 +627,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     });
 
     return {
-      orderId: redirectOrderCode,
-      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(redirectOrderCode)}`
+      orderId: redirectOrderId,
+      redirect: `${getBaseUrl()}/thanh-toan?ordercode=${encodeURIComponent(redirectOrderId)}`
     };
   }
 
@@ -627,7 +637,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
   try {
     await connection.beginTransaction();
 
-    let redirectOrderCode = "";
+    const redirectOrderId = await generateUniqueCode("OD", connection);
+    const supportsOrderId = await hasOrdersOrderIdColumn(connection);
     const webhookTickets: Array<{ ordercode: string; ticket_name: string; price: number }> = [];
     let inserted = 0;
 
@@ -684,45 +695,74 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
           totalRemainingTickets -= 1;
         }
 
-        await connection.query(
-          `
-            INSERT INTO orders (
-              ordercode, create_time, name, phone, email, gender, class, money,
-              status, is_gift, is_checkin, number_checkin, career, brand, ref, source,
-              send_noti, customer_id, voucher, utm_source, utm_medium, utm_campaign
-            ) VALUES (
-              ?, ?, ?, ?, ?, ?, ?, ?,
-              'new', 0, 0, 0, ?, ?, ?, ?,
-              0, ?, ?, ?, ?, ?
-            )
-          `,
-          [
-            orderCode,
-            createTime,
-            name,
-            phone,
-            email,
-            gender,
-            ticket.name,
-            money,
-            money,
-            career,
-            brand,
-            hope,
-            ref,
-            source,
-            customerId,
-            voucherCode || null,
-            utmSource,
-            utmMedium,
-            utmCampaign
-          ]
-        );
-
-        if (!redirectOrderCode) {
-          redirectOrderCode = orderCode;
+        if (supportsOrderId) {
+          await connection.query(
+            `
+              INSERT INTO orders (
+                order_id, ordercode, create_time, name, phone, email, gender, class, money,
+                status, is_gift, is_checkin, number_checkin, career, brand, ref, source,
+                send_noti, customer_id, voucher, utm_source, utm_medium, utm_campaign
+              ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                'new', 0, 0, 0, ?, ?, ?, ?,
+                0, ?, ?, ?, ?, ?
+              )
+            `,
+            [
+              redirectOrderId,
+              orderCode,
+              createTime,
+              name,
+              phone,
+              email,
+              gender,
+              ticket.name,
+              money,
+              career,
+              brand,
+              ref,
+              source,
+              customerId,
+              voucherCode || null,
+              utmSource,
+              utmMedium,
+              utmCampaign
+            ]
+          );
+        } else {
+          await connection.query(
+            `
+              INSERT INTO orders (
+                ordercode, create_time, name, phone, email, gender, class, money,
+                status, is_gift, is_checkin, number_checkin, career, brand, ref, source,
+                send_noti, customer_id, voucher, utm_source, utm_medium, utm_campaign
+              ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?,
+                'new', 0, 0, 0, ?, ?, ?, ?,
+                0, ?, ?, ?, ?, ?
+              )
+            `,
+            [
+              orderCode,
+              createTime,
+              name,
+              phone,
+              email,
+              gender,
+              ticket.name,
+              money,
+              career,
+              brand,
+              ref,
+              source,
+              customerId,
+              voucherCode || null,
+              utmSource,
+              utmMedium,
+              utmCampaign
+            ]
+          );
         }
-
         webhookTickets.push({
           ordercode: orderCode,
           ticket_name: ticket.name,
@@ -742,7 +782,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     await connection.commit();
 
     await sendRegisterWebhook({
-      order_id: redirectOrderCode,
+      order_id: redirectOrderId,
       create_time: createTime,
       ref,
       name,
@@ -769,8 +809,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreatedOrder
     });
 
     return {
-      orderId: redirectOrderCode,
-      redirect: `${getBaseUrl()}/thanh-toan?orderid=${encodeURIComponent(redirectOrderCode)}`
+      orderId: redirectOrderId,
+      redirect: `${getBaseUrl()}/thanh-toan?ordercode=${encodeURIComponent(redirectOrderId)}`
     };
   } catch (error) {
     await connection.rollback();
@@ -816,23 +856,48 @@ export async function getOrderDetail(orderId: string) {
     return mockOrder ? buildOrderDetail(mockOrder) : null;
   }
 
-  const [rows] = await pool.query<OrderRow[]>(
-    `
-      SELECT ordercode, create_time, name, phone, email, gender, class, money, status
-      FROM orders
-      WHERE ordercode = ?
-      ORDER BY id ASC
-    `,
-    [code]
-  );
+  const supportsOrderId = await hasOrdersOrderIdColumn(pool);
+  const [rows] = supportsOrderId
+    ? await pool.query<OrderRow[]>(
+        `
+          SELECT ordercode, order_id, create_time, name, phone, email, gender, class, money, status
+          FROM orders
+          WHERE order_id = ?
+          ORDER BY id ASC
+        `,
+        [code]
+      )
+    : await pool.query<OrderRow[]>(
+        `
+          SELECT ordercode, NULL AS order_id, create_time, name, phone, email, gender, class, money, status
+          FROM orders
+          WHERE ordercode = ?
+          ORDER BY id ASC
+        `,
+        [code]
+      );
 
   if (rows.length === 0) {
-    return null;
+    const [fallbackRows] = await pool.query<OrderRow[]>(
+      `
+        SELECT ordercode, ${supportsOrderId ? "order_id" : "NULL AS order_id"}, create_time, name, phone, email, gender, class, money, status
+        FROM orders
+        WHERE ordercode = ?
+        ORDER BY id ASC
+      `,
+      [code]
+    );
+
+    if (fallbackRows.length === 0) {
+      return null;
+    }
+
+    rows.push(...fallbackRows);
   }
 
   const records: OrderRecord[] = rows.map((row) => ({
     orderCode: row.ordercode,
-    orderId: row.ordercode,
+    orderId: row.order_id || code,
     createTime: row.create_time,
     customerName: row.name,
     phone: row.phone,
@@ -841,7 +906,7 @@ export async function getOrderDetail(orderId: string) {
     className: row.class,
     money: Number(row.money),
     status: row.status,
-    transferContent: row.ordercode
+    transferContent: row.order_id || code
   }));
 
   return buildOrderDetail(records);
@@ -917,14 +982,16 @@ export async function checkPaymentStatus(
     }
   }
 
+  const supportsOrderId = await hasOrdersOrderIdColumn(pool);
   const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT status FROM orders WHERE ordercode = ? LIMIT 1",
-    [code]
+    supportsOrderId
+      ? "SELECT status FROM orders WHERE order_id = ? OR ordercode = ?"
+      : "SELECT status FROM orders WHERE ordercode = ?",
+    supportsOrderId ? [code, code] : [code]
   );
-  const status = String(rows[0]?.status || "");
 
   return {
-    status: isPaidStatus(status) ? "paydone" : "pending"
+    status: rows.some((row) => isPaidStatus(String(row.status || ""))) ? "paydone" : "pending"
   };
 }
 
@@ -943,7 +1010,13 @@ export async function markOrderPaid(orderId: string) {
     return;
   }
 
-  await pool.query("UPDATE orders SET status = 'paydone' WHERE ordercode = ?", [code]);
+  const supportsOrderId = await hasOrdersOrderIdColumn(pool);
+  await pool.query(
+    supportsOrderId
+      ? "UPDATE orders SET status = 'paydone' WHERE order_id = ? OR ordercode = ?"
+      : "UPDATE orders SET status = 'paydone' WHERE ordercode = ?",
+    supportsOrderId ? [code, code] : [code]
+  );
 }
 
 export function buildRequestMeta(headers: Headers) {
