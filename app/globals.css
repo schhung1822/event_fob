@@ -3171,3 +3171,370 @@ body {
     animation: none;
   }
 }
+
+.thanks-card-with-tickets {
+  width: min(520px, 100%);
+}
+
+.thanks-ticket-section {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 18px;
+  text-align: left;
+}
+
+.thanks-ticket-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.thanks-ticket-list {
+  display: grid;
+  gap: 10px;
+  max-height: 310px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+  scrollbar-color: rgba(96, 165, 250, 0.65) rgba(255, 255, 255, 0.07);
+  scrollbar-width: thin;
+}
+
+.thanks-ticket-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.thanks-ticket-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.thanks-ticket-list::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(8, 16, 36, 0.92);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.thanks-ticket-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
+}
+.thanks-ticket-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 12px 12px 14px;
+}
+
+.thanks-ticket-info {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.thanks-ticket-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.thanks-ticket-code {
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  word-break: break-word;
+}
+
+.thanks-ticket-action {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.16);
+  color: #ffffff;
+  padding: 0 14px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.thanks-ticket-action:hover {
+  border-color: rgba(96, 165, 250, 0.7);
+  background: rgba(37, 99, 235, 0.32);
+  transform: translateY(-1px);
+}
+
+.thanks-ticket-empty {
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  padding: 14px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 520px) {
+  .thanks-card-with-tickets {
+    width: min(370px, 100%);
+  }
+
+  .thanks-ticket-list {
+    max-height: 214px;
+  }
+
+  .thanks-ticket-item {
+
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .thanks-ticket-action {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+}
+
+/* Refined check-ticket experience */
+.check-ticket-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(96, 165, 250, 0.2), transparent 28%),
+    radial-gradient(circle at 82% 78%, rgba(15, 23, 42, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #eef4ff 100%);
+  color: #020617;
+}
+
+.check-ticket-card {
+  filter:
+    drop-shadow(0 12px 20px rgba(15, 23, 42, 0.12))
+    drop-shadow(0 34px 54px rgba(15, 23, 42, 0.18));
+  animation: check-ticket-float 7s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  will-change: transform, filter;
+}
+
+@keyframes check-ticket-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotateZ(-0.4deg);
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0) rotateZ(0.4deg);
+    filter:
+      drop-shadow(0 16px 24px rgba(15, 23, 42, 0.1))
+      drop-shadow(0 44px 64px rgba(15, 23, 42, 0.16));
+  }
+}
+
+.check-ticket-bg {
+  filter: url(#check-ticket-bump) saturate(1.08) contrast(1.02);
+}
+
+.check-ticket-holographic {
+  background-image:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.86), 84%, rgba(15, 23, 42, 0.1)),
+    conic-gradient(
+      at 54% 48%,
+      #ffffff,
+      #dbeafe,
+      #93c5fd,
+      #60a5fa,
+      #e0f2fe,
+      #2563eb,
+      #bfdbfe,
+      #f8fafc,
+      #dbeafe,
+      #1d4ed8,
+      #e2e8f0,
+      #ffffff
+    );
+}
+
+.check-ticket-holographic::before {
+  background:
+    radial-gradient(circle at 68% 18%, rgba(59, 130, 246, 0.42), transparent 34%),
+    radial-gradient(circle at 30% 82%, rgba(147, 197, 253, 0.38), transparent 38%),
+    repeating-radial-gradient(circle at 32% 74%, rgba(255, 255, 255, 0.8), rgba(191, 219, 254, 0.68) 46px, rgba(226, 232, 240, 0.7) 146px);
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+}
+
+.check-ticket-holographic::after {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.18), rgba(96, 165, 250, 0.32), rgba(15, 23, 42, 0.12));
+  mix-blend-mode: multiply;
+  animation: check-ticket-shimmer 8s ease-in-out infinite alternate;
+  background-size: 100% 220%;
+}
+
+@keyframes check-ticket-shimmer {
+  from {
+    background-position: 0 0;
+    opacity: 0.42;
+  }
+
+  to {
+    background-position: 0 180px;
+    opacity: 0.72;
+  }
+}
+
+.check-ticket-header {
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+  mix-blend-mode: plus-lighter;
+}
+
+.check-ticket-body {
+  border-color: rgba(15, 23, 42, 0.18);
+  color: #06111f;
+}
+
+.check-ticket-body strong {
+  color: #06111f;
+}
+
+.check-ticket-kicker {
+  color: #1d4ed8;
+}
+
+.check-ticket-qr-wrap img {
+  border: 8px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+}
+
+.check-ticket-code {
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+  color: #020617;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.check-ticket-notes {
+  color: rgba(226, 232, 240, 0.58);
+  mix-blend-mode: multiply;
+}
+
+.check-ticket-empty {
+  position: relative;
+  width: min(430px, 100%);
+  overflow: hidden;
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(96, 165, 250, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  padding: 34px 26px 30px;
+  color: #020617;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.14);
+}
+
+.check-ticket-empty-icon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #eff6ff, #ffffff);
+  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.14);
+}
+
+.check-ticket-empty-icon svg {
+  width: 36px;
+  height: 36px;
+  fill: #2563eb;
+}
+
+.check-ticket-empty-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.check-ticket-empty h1 {
+  margin: 0 0 10px;
+  color: #020617;
+  font-size: 28px;
+  line-height: 1.18;
+  font-weight: 900;
+}
+
+.check-ticket-empty p {
+  margin: 0 auto 22px;
+  max-width: 330px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.check-ticket-empty-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #0f172a);
+  color: #ffffff;
+  padding: 0 22px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.check-ticket-empty-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .check-ticket-card,
+  .check-ticket-holographic::after {
+    animation: none;
+  }
+}
+
+/* Improve ticket title contrast and reduce visual noise */
+.check-ticket-notes {
+  display: none;
+}
+
+.check-ticket-header {
+  color: #0f172a;
+  -webkit-text-stroke: 0;
+  mix-blend-mode: normal;
+  opacity: 0.92;
+  text-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.55),
+    0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.check-ticket-symbol {
+  color: #2563eb;
+  opacity: 0.5;
+  text-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}

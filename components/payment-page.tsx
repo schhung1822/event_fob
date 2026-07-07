@@ -50,7 +50,7 @@ export function PaymentPage({
           };
 
           if (response.ok && payload.success && payload.data?.status === "paydone") {
-            router.push(`/trang-cam-on?orderid=${encodeURIComponent(orderId)}`);
+            router.push(`/trang-cam-on?ordercode=${encodeURIComponent(orderId)}`);
           }
         } catch {
           return;
@@ -146,7 +146,7 @@ export function PaymentPage({
       }
 
       if (payload.data.status === "paydone") {
-        router.push(`/trang-cam-on?orderid=${encodeURIComponent(orderId)}`);
+        router.push(`/trang-cam-on?ordercode=${encodeURIComponent(orderId)}`);
         return true;
       }
 
