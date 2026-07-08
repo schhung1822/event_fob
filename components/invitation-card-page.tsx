@@ -47,6 +47,9 @@ const HOME_URL = "/";
 const HOME_LABEL = "Về trang chủ";
 const INVITATION_UNAVAILABLE_TITLE = "Không thể tạo thiệp mời";
 const INVITATION_UNAVAILABLE_MESSAGE = "Bạn không thể tạo thiệp mời vui lòng đăng ký vé để có thể tạo thiệp mời.";
+const ZALO_BROWSER_TITLE = "B\u1ea1n \u0111ang m\u1edf b\u1eb1ng Zalo";
+const ZALO_BROWSER_MESSAGE =
+  "Zalo c\u00f3 th\u1ec3 ch\u1eb7n t\u1ea3i \u1ea3nh v\u00e0 chia s\u1ebb thi\u1ec7p m\u1eddi. Vui l\u00f2ng m\u1edf trang n\u00e0y b\u1eb1ng Chrome, Safari ho\u1eb7c tr\u00ecnh duy\u1ec7t m\u1eb7c \u0111\u1ecbnh \u0111\u1ec3 t\u1ea1o thi\u1ec7p.";
 
 const DEFAULT_IMAGE_SETTINGS = {
   scale: 100,
@@ -175,6 +178,15 @@ function canvasToBlob(canvas: HTMLCanvasElement) {
   });
 }
 
+function isZaloBrowser(userAgent: string) {
+  return /\bzalo\b/i.test(userAgent);
+}
+
+function getAndroidBrowserIntentUrl(url: string) {
+  const withoutProtocol = url.replace(/^https?:\/\//i, "");
+  return `intent://${withoutProtocol}#Intent;scheme=https;package=com.android.chrome;end`;
+}
+
 function openImageFallback(canvas: HTMLCanvasElement) {
   const imageUrl = canvas.toDataURL("image/png");
   const openedWindow = window.open();
@@ -247,6 +259,54 @@ function InvitationStateCard({
   );
 }
 
+function ZaloBrowserNotice({ currentUrl }: { currentUrl: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyCurrentUrl() {
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch (caughtError) {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_16%_8%,rgba(255,87,180,0.28),transparent_28%),radial-gradient(circle_at_86%_18%,rgba(82,36,214,0.34),transparent_32%),linear-gradient(145deg,#2a0a72_0%,#7c13b8_42%,#e10b72_100%)] px-4 py-8 text-white">
+      <section className="w-full max-w-[560px] rounded-[26px] border border-white/18 bg-white/95 px-6 py-8 text-center text-[#15134a] shadow-[0_28px_80px_rgba(15,23,42,0.22)] sm:px-9">
+        <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full bg-[#d5167a] text-2xl font-black text-white">
+          !
+        </div>
+        <h1 className="m-0 text-2xl font-black leading-tight sm:text-3xl">{ZALO_BROWSER_TITLE}</h1>
+        <p className="mx-auto mt-4 max-w-[440px] text-sm leading-7 text-[#4d438f] sm:text-[15px]">
+          {ZALO_BROWSER_MESSAGE}
+        </p>
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          <a
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#d5167a] to-[#7c13b8] px-7 text-sm font-black text-white shadow-[0_12px_26px_rgba(213,22,122,0.28)] transition hover:-translate-y-0.5 hover:brightness-110"
+            href={currentUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {"M\u1edf b\u1eb1ng tr\u00ecnh duy\u1ec7t"}
+          </a>
+          <button
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d5167a]/25 bg-white px-7 text-sm font-black text-[#9b147e] transition hover:-translate-y-0.5 hover:border-[#d5167a]/45 hover:bg-[#fff5fb]"
+            type="button"
+            onClick={() => void copyCurrentUrl()}
+          >
+            {copied ? "\u0110\u00e3 copy link" : "Copy link"}
+          </button>
+        </div>
+        <p className="mt-5 text-xs font-bold leading-6 text-[#5f5793]">
+          {"N\u1ebfu n\u00fat m\u1edf kh\u00f4ng ho\u1ea1t \u0111\u1ed9ng, h\u00e3y copy link r\u1ed3i d\u00e1n v\u00e0o Chrome ho\u1eb7c Safari."}
+        </p>
+      </section>
+    </main>
+  );
+}
+
 function ImageSlider({
   label,
   value,
@@ -308,6 +368,7 @@ function ActionButton({
 export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [zaloBrowserUrl, setZaloBrowserUrl] = useState("");
   const [orderDetail, setOrderDetail] = useState<OrderDetail | null>(null);
   const [availableTemplates, setAvailableTemplates] = useState<TicketTemplate[]>([]);
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<TicketTemplateKey | "">("");
@@ -325,6 +386,20 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
     if (!selectedTemplateKey) return null;
     return TICKET_TEMPLATES[selectedTemplateKey];
   }, [selectedTemplateKey]);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent || "";
+    if (!isZaloBrowser(userAgent)) return;
+
+    const currentUrl = window.location.href;
+    setZaloBrowserUrl(currentUrl);
+
+    if (/android/i.test(userAgent)) {
+      window.setTimeout(() => {
+        window.location.href = getAndroidBrowserIntentUrl(currentUrl);
+      }, 250);
+    }
+  }, []);
 
   useEffect(() => {
     if (!orderId) {
@@ -537,6 +612,10 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
   const ticketUnavailable = !loading && !error && availableTemplates.length === 0;
   const disabledActions = !selectedTemplate || Boolean(renderError);
+
+  if (zaloBrowserUrl) {
+    return <ZaloBrowserNotice currentUrl={zaloBrowserUrl} />;
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_16%_8%,rgba(255,87,180,0.28),transparent_28%),radial-gradient(circle_at_86%_18%,rgba(82,36,214,0.34),transparent_32%),linear-gradient(145deg,#2a0a72_0%,#7c13b8_42%,#e10b72_100%)] px-3 py-5 text-white sm:px-5 sm:py-7 lg:py-8">
