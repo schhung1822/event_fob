@@ -1100,6 +1100,49 @@ select {
   margin-top: 24px;
 }
 
+.payment-countdown {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.payment-countdown strong {
+  color: #c2410c;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.payment-expired-card {
+  grid-column: 1 / -1;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+}
+
+.payment-expired-card p {
+  margin: 0 auto 24px;
+  max-width: 560px;
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.payment-register-link {
+  width: min(260px, 100%);
+  margin: 0 auto;
+  text-decoration: none;
+}
 .loading,
 .error-box,
 .empty-box {
@@ -3538,3 +3581,4 @@ body {
   opacity: 0.5;
   text-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
 }
+

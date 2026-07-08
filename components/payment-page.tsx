@@ -14,6 +14,20 @@ type PaymentPageProps = {
   qrBase: string;
 };
 
+const PAYMENT_TIMEOUT_SECONDS = 15 * 60;
+const REGISTER_URL = "https://smesummit.vn/";
+
+function normalizeOrderStatus(status?: string) {
+  return status?.trim().toLowerCase() || "";
+}
+
+function formatCountdown(seconds: number) {
+  const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const remainingSeconds = (seconds % 60).toString().padStart(2, "0");
+
+  return `${minutes}:${remainingSeconds}`;
+}
+
 export function PaymentPage({
   orderId,
   bankName,
@@ -26,9 +40,11 @@ export function PaymentPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [manualChecking, setManualChecking] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(PAYMENT_TIMEOUT_SECONDS);
+  const [paymentExpired, setPaymentExpired] = useState(false);
 
   useEffect(() => {
-    if (!orderDetail) return;
+    if (!orderDetail || paymentExpired) return;
 
     const intervalId = window.setInterval(() => {
       void (async () => {
@@ -59,7 +75,43 @@ export function PaymentPage({
     }, 10000);
 
     return () => window.clearInterval(intervalId);
+  }, [orderDetail, orderId, paymentExpired, router]);
+
+  useEffect(() => {
+    if (!orderDetail) return;
+
+    const orderStatus = normalizeOrderStatus(orderDetail.status);
+    if (orderStatus === "paydone") {
+      router.push(`/trang-cam-on?ordercode=${encodeURIComponent(orderId)}`);
+      return;
+    }
+
+    if (orderStatus === "expired") {
+      setPaymentExpired(true);
+      setRemainingSeconds(0);
+      return;
+    }
+
+    setPaymentExpired(false);
+    setRemainingSeconds(PAYMENT_TIMEOUT_SECONDS);
   }, [orderDetail, orderId, router]);
+
+  useEffect(() => {
+    if (!orderDetail || paymentExpired) return;
+
+    const timerId = window.setInterval(() => {
+      setRemainingSeconds((currentSeconds) => {
+        if (currentSeconds <= 1) {
+          setPaymentExpired(true);
+          return 0;
+        }
+
+        return currentSeconds - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [orderDetail, paymentExpired]);
 
   useEffect(() => {
     async function loadOrderDetail() {
@@ -107,7 +159,7 @@ export function PaymentPage({
   }
 
   function downloadQr() {
-    if (!orderDetail) return;
+    if (!orderDetail || paymentExpired) return;
     const link = document.createElement("a");
     link.href = `${qrBase}?acc=${encodeURIComponent(
       bankAccount
@@ -192,6 +244,7 @@ export function PaymentPage({
     <main className="payment-shell">
       <div className="page-wrap">
         <div className="page-header">
+          <span className="text-[0.7rem] font-semibold uppercase text-white/70">The Future of Business 2026</span><br />
           {orderId ? `Thanh toán đơn ${orderId}` : "Thanh toán đơn hàng"}
         </div>
 
@@ -202,8 +255,11 @@ export function PaymentPage({
             <div className="error-box">{error}</div>
           ) : !orderDetail ? (
             <div className="empty-box">Không có dữ liệu đơn hàng.</div>
+          ) : paymentExpired ? (
+            <PaymentExpiredNotice orderId={orderDetail.orderId || orderId} />
           ) : (
             <>
+              <PaymentCountdown remainingSeconds={remainingSeconds} />
               <section className="cardpay payment-order-card">
                 <div className="cardpay-title">Thông tin đơn hàng</div>
 
@@ -329,12 +385,36 @@ export function PaymentPage({
         <div className="payment-contact-lines">
           <p>Email: <a href="mailto:event@smesummit.vn">event@smesummit.vn</a></p>
           <p>Website: <a href="https://smesummit.vn/">smesummit.vn</a></p>
-          <p>Hotline/Zalo:  024.355.63.010</p>
+          <p>Hotline/Zalo: <a href="tel:0901312342">090 131 2342</a> - <a href="tel:0984845490">098 484 5490</a></p>
         </div>
       </section>
     </main>
   );
 }
+function PaymentCountdown({ remainingSeconds }: { remainingSeconds: number }) {
+  return (
+    <div className="payment-countdown" role="status">
+      <span>Thời gian thanh toán còn lại</span>
+      <strong>{formatCountdown(remainingSeconds)}</strong>
+    </div>
+  );
+}
+
+function PaymentExpiredNotice({ orderId }: { orderId: string }) {
+  return (
+    <section className="payment-expired-card">
+      <div className="cardpay-title">Đơn hàng đã quá thời gian thanh toán</div>
+      <p>
+        Đơn hàng {orderId} đã quá thời gian thanh toán. Nếu vẫn có nhu cầu mua vé,
+        vui lòng click vào nút đăng ký vé để đăng ký vé mới.
+      </p>
+      <a className="btn btn-primary payment-register-link" href={REGISTER_URL}>
+        Đăng ký vé
+      </a>
+    </section>
+  );
+}
+
 function PaymentNotice({ className = "" }: { className?: string }) {
   return (
     <div className={`alert-box ${className}`}>

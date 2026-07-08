@@ -279,6 +279,15 @@ function validateCreateOrderInput(input: CreateOrderInput) {
 
 function buildOrderDetail(records: OrderRecord[]): OrderDetail {
   const first = records[0];
+  const statuses = records.map((record) => record.status.trim().toLowerCase());
+  const detailStatus = statuses.some((status) => isPaidStatus(status))
+    ? "paydone"
+    : statuses.includes("expired")
+      ? "expired"
+      : statuses.includes("new")
+        ? "new"
+        : first.status || "pending";
+
   return {
     orderId: first.orderId,
     customerName: first.customerName,
@@ -286,7 +295,7 @@ function buildOrderDetail(records: OrderRecord[]): OrderDetail {
     email: first.email,
     transferContent: first.orderId,
     totalMoney: records.reduce((sum, record) => sum + record.money, 0),
-    status: records.some((record) => isPaidStatus(record.status)) ? "paydone" : "pending",
+    status: detailStatus,
     records
   };
 }

@@ -10,14 +10,14 @@ export default async function ThankYouPage({
   const orderId = (searchParams.ordercode || searchParams.orderid || "").trim();
   const orderDetail = orderId ? await getOrderDetail(orderId) : null;
   const tickets = orderDetail?.records ?? [];
-  const latestTicketCode = tickets.at(-1)?.orderCode || orderId;
-  const inviteHref = latestTicketCode
-    ? `https://thiepmoi.sukien.io/?ordercode=${encodeURIComponent(latestTicketCode)}`
-    : "https://thiepmoi.sukien.io/";
+  const inviteOrderId = orderDetail?.orderId || orderId;
+  const inviteHref = inviteOrderId
+    ? `/thiep-moi?orderId=${encodeURIComponent(inviteOrderId)}`
+    : "/thiep-moi";
 
   return (
     <main className="thanks-page">
-      <section className="thanks-card thanks-card-with-tickets" aria-label="Thanh to&#225;n th&#224;nh c&#244;ng">
+      <section className="thanks-card thanks-card-with-tickets" aria-label="Danh sách vé tham dự">
         <div className="thanks-glow" aria-hidden="true" />
         <div className="thanks-corner thanks-corner-top" aria-hidden="true" />
         <div className="thanks-corner thanks-corner-bottom" aria-hidden="true" />
@@ -32,11 +32,8 @@ export default async function ThankYouPage({
           </div>
         </div>
 
-        <span className="thanks-badge">Thanh to&#225;n th&#224;nh c&#244;ng</span>
-        <h1>C&#7843;m &#417;n b&#7841;n &#273;&#227; &#273;&#259;ng k&#253; tham d&#7921; The Future Of Business</h1>
-        <p>
-          H&#7879; th&#7889;ng &#273;&#227; x&#225;c nh&#7853;n &#273;&#417;n h&#224;ng c&#7911;a b&#7841;n. Vui l&#242;ng l&#432;u m&#227; v&#233; ho&#7863;c m&#7903; QR check-in &#273;&#7875; xu&#7845;t tr&#236;nh t&#7841;i khu v&#7921;c &#273;&#243;n kh&#225;ch.
-        </p>
+        <span className="thanks-badge">Danh sách vé tham dự</span>
+        <h1>The Future Of Business</h1>
 
         {orderId ? (
           <div className="thanks-order">
@@ -76,8 +73,6 @@ export default async function ThankYouPage({
           <a
             className="thanks-link thanks-link-secondary"
             href={inviteHref}
-            target="_blank"
-            rel="noopener noreferrer"
           >
             T&#7841;o thi&#7879;p m&#7901;i
           </a>
