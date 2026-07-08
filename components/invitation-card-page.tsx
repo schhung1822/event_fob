@@ -41,6 +41,13 @@ const TICKET_TEMPLATES: Record<TicketTemplateKey, TicketTemplate> = {
   }
 };
 
+const REGISTER_TICKET_URL = "https://smesummit.vn/";
+const REGISTER_TICKET_LABEL = "Đăng ký vé";
+const HOME_URL = "/";
+const HOME_LABEL = "Về trang chủ";
+const INVITATION_UNAVAILABLE_TITLE = "Không thể tạo thiệp mời";
+const INVITATION_UNAVAILABLE_MESSAGE = "Bạn không thể tạo thiệp mời vui lòng đăng ký vé để có thể tạo thiệp mời.";
+
 const DEFAULT_IMAGE_SETTINGS = {
   scale: 100,
   offsetX: 0,
@@ -193,7 +200,7 @@ function TextInput({ label, id, ...props }: InputHTMLAttributes<HTMLInputElement
       </label>
       <input
         id={id}
-        className="min-h-11 w-full rounded-xl border border-white/20 bg-white/85 px-3.5 py-2.5 text-sm font-extrabold text-[#24102f] outline-none transition placeholder:text-[#24102f]/45 focus:border-white/75 focus:ring-4 focus:ring-white/15"
+        className="min-h-11 text-[12px] sm:text-[15px] w-full rounded-xl border border-white/20 bg-white/85 px-3.5 py-2.5 font-extrabold text-[#24102f] outline-none transition placeholder:text-[#24102f]/45 focus:border-white/75 focus:ring-4 focus:ring-white/15"
         {...props}
       />
     </div>
@@ -209,20 +216,34 @@ function InvitationStateCard({
   title: string;
   message: string;
 }) {
+  const isError = tone === "error";
+
   return (
-    <div
-      className={`mx-auto grid w-[min(720px,100%)] grid-cols-1 items-center gap-4 rounded-2xl border border-white/20 p-5 text-center shadow-[0_16px_40px_rgba(35,0,57,0.2)] backdrop-blur-xl sm:grid-cols-[auto_1fr] sm:text-left ${
-        tone === "error" ? "bg-[#580036]/60" : "bg-[#370058]/50"
-      }`}
-    >
-      <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-white/20 text-lg font-black text-white sm:mx-0">
-        {tone === "error" ? "!" : "..."}
+    <section className="mx-auto flex min-h-[52vh] w-full max-w-[620px] items-center justify-center px-3">
+      <div className="w-full rounded-[24px] border border-slate-200/80 bg-white px-6 py-8 text-center text-[#15134a] shadow-[0_28px_80px_rgba(15,23,42,0.18)] sm:px-10 sm:py-9">
+        <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full border-[3px] border-[#d5167a] text-2xl font-black leading-none text-[#d5167a]">
+          {isError ? "!" : "..."}
+        </div>
+        <h2 className="m-0 text-xl font-black leading-tight text-[#15134a] sm:text-2xl">{title}</h2>
+        <p className="mx-auto mt-4 max-w-[460px] text-sm leading-7 text-[#4d438f] sm:text-[15px]">{message}</p>
+        {isError ? (
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <a
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#d5167a] to-[#7c13b8] px-7 text-sm font-black text-[#fff] shadow-[0_12px_26px_rgba(213,22,122,0.28)] transition hover:-translate-y-0.5 hover:brightness-110"
+              href={REGISTER_TICKET_URL}
+            >
+              <span className="text-white">{REGISTER_TICKET_LABEL}</span>
+            </a>
+            <a
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d5167a]/25 bg-white px-7 text-sm font-black text-[#9b147e] transition hover:-translate-y-0.5 hover:border-[#d5167a]/45 hover:bg-[#fff5fb]"
+              href={HOME_URL}
+            >
+              {HOME_LABEL}
+            </a>
+          </div>
+        ) : null}
       </div>
-      <div>
-        <h2 className="m-0 text-lg font-black leading-tight text-white">{title}</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-white/80">{message}</p>
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -243,7 +264,7 @@ function ImageSlider({
 }) {
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-3 text-xs font-black text-white/80">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 text-xs font-black text-white/80">
         <span>{label}</span>
         <strong className="text-white">{value}{suffix}</strong>
       </div>
@@ -273,7 +294,7 @@ function ActionButton({
 }) {
   return (
     <button
-      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/95 px-3 py-3 text-center text-sm font-black text-[#c2187a] shadow-[0_10px_24px_rgba(32,0,78,0.16)] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-55 sm:min-h-16 lg:grid lg:min-h-20 lg:place-items-center lg:gap-1.5 lg:p-4"
+      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/95 px-3 py-3 text-center text-xs font-black sm:text-sm text-[#c2187a] shadow-[0_10px_24px_rgba(32,0,78,0.16)] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-55 sm:min-h-16 lg:grid lg:min-h-20 lg:place-items-center lg:gap-1.5 lg:p-4"
       disabled={disabled}
       type="button"
       onClick={onClick}
@@ -307,7 +328,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
   useEffect(() => {
     if (!orderId) {
-      setError("Vui lòng truyền mã đơn hàng trên URL để tạo thiệp mời.");
+      setError(INVITATION_UNAVAILABLE_MESSAGE);
       setLoading(false);
       return;
     }
@@ -326,7 +347,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
         };
 
         if (!response.ok || !payload.success || !payload.data) {
-          throw new Error(payload.error || "Không tải được thông tin đơn hàng.");
+          throw new Error(INVITATION_UNAVAILABLE_MESSAGE);
         }
 
         const templates = uniquePaidTemplates(payload.data.records);
@@ -338,11 +359,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
         setSelectedTemplateKey(templates[0]?.key || "");
       } catch (caughtError) {
         if (cancelled) return;
-        setError(
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Không tải được thông tin đơn hàng."
-        );
+        setError(INVITATION_UNAVAILABLE_MESSAGE);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -387,9 +404,9 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
 
-        const avatarSize = canvas.width * 0.2452;
-        const avatarCenterX = canvas.width * 0.1886;
-        const avatarCenterY = canvas.height * 0.2545;
+        const avatarSize = canvas.width * 0.155;
+        const avatarCenterX = canvas.width * 0.8008;
+        const avatarCenterY = canvas.height * 0.272;
         const avatarX = avatarCenterX - avatarSize / 2;
         const avatarY = avatarCenterY - avatarSize / 2;
 
@@ -415,10 +432,10 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
         drawLeftText(
           context,
           name,
-          canvas.width * 0.656,
-          canvas.height * 0.31,
+          canvas.width * 0.8008,
+          canvas.height * 0.49,
           canvas.width * 0.5,
-          canvas.width * 0.036,
+          canvas.width * 0.028,
           "Inter, sans-serif",
           "#ffffff",
           800
@@ -429,10 +446,10 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
           drawLeftText(
             context,
             aliasText,
-            canvas.width * 0.656,
-            canvas.height * 0.354,
+            canvas.width * 0.8008,
+            canvas.height * 0.54,
             canvas.width * 0.5,
-            canvas.width * 0.024,
+            canvas.width * 0.02,
             "Inter, sans-serif",
             "rgba(255, 255, 255, 0.92)",
             500
@@ -523,7 +540,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_16%_8%,rgba(255,87,180,0.28),transparent_28%),radial-gradient(circle_at_86%_18%,rgba(82,36,214,0.34),transparent_32%),linear-gradient(145deg,#2a0a72_0%,#7c13b8_42%,#e10b72_100%)] px-3 py-5 text-white sm:px-5 sm:py-7 lg:py-8">
-      <section className="mx-auto mb-10 max-w-[1200px]">
+      <section className="mx-auto mb-6 max-w-[1200px] text-center sm:mb-10">
         <span className="text-[0.7rem] font-semibold uppercase text-white/70">
           The Future of Business 2026
         </span>
@@ -538,12 +555,12 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
           message="Hệ thống đang đối chiếu mã đơn hàng và trạng thái thanh toán."
         />
       ) : error ? (
-        <InvitationStateCard tone="error" title="Không thể tạo thiệp" message={error} />
+        <InvitationStateCard tone="error" title={INVITATION_UNAVAILABLE_TITLE} message={error} />
       ) : ticketUnavailable ? (
         <InvitationStateCard
           tone="error"
-          title="Vé không khả dụng"
-          message="Mã đơn hàng này chưa có vé đã thanh toán hoặc hạng vé không hỗ trợ tạo thiệp mời."
+          title={INVITATION_UNAVAILABLE_TITLE}
+          message={INVITATION_UNAVAILABLE_MESSAGE}
         />
       ) : (
         <section className="mx-auto grid max-w-[1200px] grid-cols-1 gap-3 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] lg:items-start lg:gap-x-5">
@@ -555,7 +572,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
                 </p>
               </div>
               <button
-                className="flex h-[72px] w-[72px] flex-col items-center justify-center gap-1 rounded-2xl border border-white/25 bg-white/10 text-center text-xs font-black leading-none text-white transition hover:bg-white/15 sm:h-20 sm:w-20"
+                className="flex h-[72px] w-[72px] flex-col items-center justify-center gap-1 rounded-2xl border border-white/25 bg-white/10 text-center text-[0.68rem] font-black leading-none text-white sm:text-xs transition hover:bg-white/15 sm:h-20 sm:w-20"
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -574,7 +591,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
             <Panel className="order-3 lg:col-start-1 lg:row-start-2">
               <div>
                 <h2 className="mb-1.5 text-xl font-black leading-tight text-white">Thông tin</h2>
-                <p className="text-xs leading-relaxed text-white/72">
+                <p className="text-xs hidden sm:block leading-relaxed text-white/72">
                   Tên hiển thị và bí danh sẽ nằm bên dưới phần ban tổ chức trân trọng kính mời.
                 </p>
               </div>
@@ -602,7 +619,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="m-0 text-xl font-black uppercase tracking-wide text-white">Chỉnh ảnh</h2>
                 <button
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full border-0 bg-white/90 px-3 text-sm font-black text-[#24102f] transition hover:bg-white"
+                  className="inline-flex min-h-8 items-center gap-1 rounded-full border-0 bg-white/90 px-2.5 text-xs font-black sm:min-h-9 sm:gap-1.5 sm:px-3 sm:text-sm text-[#24102f] transition hover:bg-white"
                   type="button"
                   onClick={resetImageSettings}
                 >
