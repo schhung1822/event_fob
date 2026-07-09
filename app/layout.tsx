@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | The Future Of Business"
   },
   description:
-    "Đăng ký mua vé The Future Of Business, sự kiện triển lãm, hội thảo và kết nối kinh doanh làm đẹp, spa, clinic và mỹ phẩm.",
+    "Đăng ký mua vé The Future Of Business, Thương hiệu, Đổi mới sáng tạo và Tăng trưởng trong Kỷ nguyên Số.",
   keywords: [
     "The Future Of Business",
     "mua vé The Future Of Business"
@@ -34,14 +34,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The Future Of Business - Đăng ký mua ve",
     description:
-      "Đăng ký mua vé The Future Of Business, gặp gỡ các chuyên gia đầu ngành.",
+      "Đăng ký mua vé The Future Of Business, Thương hiệu, Đổi mới sáng tạo và Tăng trưởng trong Kỷ nguyên Số.",
     url: "/dang-ky-mua-ve",
     siteName: "The Future Of Business",
     locale: "vi_VN",
     type: "website",
     images: [
       {
-        url: "/images/banner-kim-bum-dai-su-thuong-hieu-bs-26-new_1.webp",
+        url: "/images/banner.webp",
         width: 1200,
         height: 630,
         alt: "The Future Of Business"
@@ -52,8 +52,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Future Of Business - Đăng ký mua vé",
     description:
-      "Đăng ký mua vé The Future Of Business, Sự kiện kết nối kinh doanh nghành làm đẹp.",
-    images: ["/images/banner-kim-bum-dai-su-thuong-hieu-bs-26-new_1.webp"]
+      "Đăng ký mua vé The Future Of Business, Thương hiệu, Đổi mới sáng tạo và Tăng trưởng trong Kỷ nguyên Số.",
+    images: ["/images/banner.webp"]
   },
   robots: {
     index: true,

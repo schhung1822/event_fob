@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, InputHTMLAttributes, ReactNode } from "react";
-import { Camera, Download, RotateCcw, Share2 } from "lucide-react";
+import { Camera, Download, RotateCcw, Share2, X } from "lucide-react";
 
 import type { OrderDetail, OrderRecord } from "@/lib/types";
 
@@ -47,7 +47,7 @@ const HOME_URL = "/";
 const HOME_LABEL = "Về trang chủ";
 const INVITATION_UNAVAILABLE_TITLE = "Không thể tạo thiệp mời";
 const INVITATION_UNAVAILABLE_MESSAGE = "Bạn không thể tạo thiệp mời vui lòng đăng ký vé để có thể tạo thiệp mời.";
-const ZALO_BROWSER_TITLE = "B\u1ea1n \u0111ang m\u1edf b\u1eb1ng Zalo";
+const ZALO_BROWSER_TITLE = "Bạn đang mở bằng Zalo";
 const ZALO_BROWSER_MESSAGE =
   "Zalo c\u00f3 th\u1ec3 ch\u1eb7n t\u1ea3i \u1ea3nh v\u00e0 chia s\u1ebb thi\u1ec7p m\u1eddi. Vui l\u00f2ng m\u1edf trang n\u00e0y b\u1eb1ng Chrome, Safari ho\u1eb7c tr\u00ecnh duy\u1ec7t m\u1eb7c \u0111\u1ecbnh \u0111\u1ec3 t\u1ea1o thi\u1ec7p.";
 
@@ -182,22 +182,16 @@ function isZaloBrowser(userAgent: string) {
   return /\bzalo\b/i.test(userAgent);
 }
 
+function isIosDevice() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 function getAndroidBrowserIntentUrl(url: string) {
   const withoutProtocol = url.replace(/^https?:\/\//i, "");
   return `intent://${withoutProtocol}#Intent;scheme=https;package=com.android.chrome;end`;
-}
-
-function openImageFallback(canvas: HTMLCanvasElement) {
-  const imageUrl = canvas.toDataURL("image/png");
-  const openedWindow = window.open();
-  if (openedWindow) {
-    openedWindow.document.write(`<img src="${imageUrl}" alt="Thiệp mời" style="width:100%;height:auto;display:block" />`);
-    openedWindow.document.title = "Thiệp mời";
-    openedWindow.document.close();
-    return;
-  }
-
-  window.location.href = imageUrl;
 }
 
 function Panel({ className = "", children }: { className?: string; children: ReactNode }) {
@@ -283,14 +277,6 @@ function ZaloBrowserNotice({ currentUrl }: { currentUrl: string }) {
           {ZALO_BROWSER_MESSAGE}
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <a
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#d5167a] to-[#7c13b8] px-7 text-sm font-black text-white shadow-[0_12px_26px_rgba(213,22,122,0.28)] transition hover:-translate-y-0.5 hover:brightness-110"
-            href={currentUrl}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {"M\u1edf b\u1eb1ng tr\u00ecnh duy\u1ec7t"}
-          </a>
           <button
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d5167a]/25 bg-white px-7 text-sm font-black text-[#9b147e] transition hover:-translate-y-0.5 hover:border-[#d5167a]/45 hover:bg-[#fff5fb]"
             type="button"
@@ -300,7 +286,7 @@ function ZaloBrowserNotice({ currentUrl }: { currentUrl: string }) {
           </button>
         </div>
         <p className="mt-5 text-xs font-bold leading-6 text-[#5f5793]">
-          {"N\u1ebfu n\u00fat m\u1edf kh\u00f4ng ho\u1ea1t \u0111\u1ed9ng, h\u00e3y copy link r\u1ed3i d\u00e1n v\u00e0o Chrome ho\u1eb7c Safari."}
+          Bạn có thể bấm vào dấu ba chấm ở góc phải màn hình rồi chọn mở bằng trình duyệt.
         </p>
       </section>
     </main>
@@ -337,6 +323,53 @@ function ImageSlider({
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
       />
+    </div>
+  );
+}
+
+function IosSaveImageModal({
+  imageUrl,
+  onClose
+}: {
+  imageUrl: string;
+  onClose: () => void;
+}) {
+  if (!imageUrl) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#13001f]/86 px-3 py-5 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ios-save-image-title"
+    >
+      <div className="relative flex max-h-full w-full max-w-[620px] flex-col overflow-hidden rounded-[24px] border border-white/18 bg-[#240044] text-white shadow-[0_28px_90px_rgba(0,0,0,0.42)]">
+        <div className="flex items-start justify-between gap-3 border-b border-white/12 px-4 py-4 sm:px-5">
+          <div>
+            <h2 id="ios-save-image-title" className="m-0 text-lg font-black leading-tight sm:text-xl">
+              Lưu ảnh trên iPhone/iPad
+            </h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-white/78">
+              Nhấn giữ vào vùng không có chữ trong ảnh để có thể lưu ảnh về máy.
+            </p>
+          </div>
+          <button
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/18"
+            type="button"
+            aria-label="Đóng"
+            onClick={onClose}
+          >
+            <X aria-hidden="true" size={20} />
+          </button>
+        </div>
+        <div className="overflow-auto bg-[#11001f] p-3 sm:p-4">
+          <img
+            className="mx-auto block h-auto max-h-[72vh] w-full max-w-full select-auto rounded-xl bg-slate-950 object-contain"
+            src={imageUrl}
+            alt="Thiệp mời hoàn thiện"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -381,6 +414,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [renderError, setRenderError] = useState("");
+  const [iosPreviewUrl, setIosPreviewUrl] = useState("");
 
   const selectedTemplate = useMemo(() => {
     if (!selectedTemplateKey) return null;
@@ -569,8 +603,15 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
   async function downloadInvitation() {
     const canvas = canvasRef.current;
+    if (!canvas || !selectedTemplate) return;
+
+    if (isIosDevice()) {
+      setIosPreviewUrl(canvas.toDataURL("image/png"));
+      return;
+    }
+
     const blob = await createInvitationBlob();
-    if (!canvas || !blob || !selectedTemplate) return;
+    if (!blob) return;
 
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -582,10 +623,6 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
     link.remove();
 
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-      openImageFallback(canvas);
-    }
   }
 
   async function shareInvitation() {
@@ -669,7 +706,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
             <Panel className="order-3 lg:col-start-1 lg:row-start-2">
               <div>
-                <h2 className="mb-1.5 text-xl font-black leading-tight text-white">Thông tin</h2>
+                <h2 className="mb-1.5 text-[16px] font-black leading-tight text-white">Thông tin</h2>
                 <p className="text-xs hidden sm:block leading-relaxed text-white/72">
                   Tên hiển thị và bí danh sẽ nằm bên dưới phần ban tổ chức trân trọng kính mời.
                 </p>
@@ -696,7 +733,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
 
             <Panel className="order-4 bg-[#25004d]/78 lg:col-start-1 lg:row-start-3">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="m-0 text-xl font-black uppercase tracking-wide text-white">Chỉnh ảnh</h2>
+                <h2 className="m-0 text-[16px] font-black uppercase tracking-wide text-white">Chỉnh ảnh</h2>
                 <button
                   className="inline-flex min-h-8 items-center gap-1 rounded-full border-0 bg-white/90 px-2.5 text-xs font-black sm:min-h-9 sm:gap-1.5 sm:px-3 sm:text-sm text-[#24102f] transition hover:bg-white"
                   type="button"
@@ -739,7 +776,6 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
           <section className={`${panelClass} order-2 overflow-hidden p-2 sm:p-2.5 lg:col-start-2 lg:row-start-1 lg:row-span-6`} aria-label="Xem trước thiệp mời">
             <div className="flex items-center justify-between px-1 pb-2 text-[0.68rem] font-black uppercase tracking-[0.06em] text-white/70">
               <span>Xem trước thiệp mời</span>
-              <strong className="rounded-full bg-white/16 px-2.5 py-1 text-[0.68rem] text-white">PNG</strong>
             </div>
             <canvas
               ref={canvasRef}
@@ -748,6 +784,7 @@ export function InvitationCardPage({ orderId }: InvitationCardPageProps) {
           </section>
         </section>
       )}
+      <IosSaveImageModal imageUrl={iosPreviewUrl} onClose={() => setIosPreviewUrl("")} />
     </main>
   );
 }
